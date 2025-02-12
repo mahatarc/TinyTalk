@@ -7,7 +7,6 @@ class MatchHalfGame extends StatefulWidget {
 }
 
 class _MatchHalfGameState extends State<MatchHalfGame> {
-  // List of all Nepali letters and their corresponding pairs
   final List<Map<String, String>> nepaliPairs = [
     {'half1': 'क', 'half2': 'क'},
     {'half1': 'ख', 'half2': 'ख'},
@@ -47,23 +46,20 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
     {'half1': 'ज्ञ', 'half2': 'ज्ञ'},
   ];
 
-  List<Map<String, String>> currentPairs = []; // Currently displayed 3 pairs
-  List<Map<String, String>> shuffledPairs = []; // Shuffled right side (half2) pairs
-  List<Map<String, String>> matchedPairs = []; // Matched pairs
+  List<Map<String, String>> currentPairs = [];
+  List<Map<String, String>> shuffledPairs = [];
+  List<Map<String, String>> matchedPairs = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeGame(); // Initialize game with random pairs
+    _initializeGame();
   }
 
   void _initializeGame() {
-    // Shuffle the list of pairs and select 3 random pairs for the game
     List<Map<String, String>> shuffledNepaliPairs = List.from(nepaliPairs);
     shuffledNepaliPairs.shuffle(Random());
     currentPairs = shuffledNepaliPairs.take(3).toList();
-
-    // Shuffle the right-side (half2) pairs to make it harder for the user
     shuffledPairs = List.from(currentPairs);
     shuffledPairs.shuffle(Random());
   }
@@ -73,131 +69,136 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Match Nepali Letters'),
-        backgroundColor: const Color.fromARGB(255, 98, 174, 237),
+        backgroundColor: const Color.fromARGB(255, 118, 181, 111),
       ),
-      backgroundColor: const Color.fromARGB(255, 187, 222, 251), // Light blue background
-      body: Center(
-        child: Column(
-          children: [
-            // Game Title
-            Container(
-              margin: const EdgeInsets.only(top: 20, bottom: 20),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 98, 174, 237),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Match the Letters!',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 239, 237, 237),
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+      body: Stack(
+        children: [
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'images/bg.jpg', // Replace with your image path
+              fit: BoxFit.cover,
             ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // First column with draggable items (LHS)
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: currentPairs
-                        .map((pair) => Draggable<String>(
-                              data: pair['half1']!,
-                              feedback: Material(
-                                color: Colors.transparent,
-                                child: Text(
-                                  pair['half1']!,
-                                  style: TextStyle(
-                                    fontSize: 40,
-                                    color: const Color.fromARGB(255, 24, 137, 230),
-                                  ),
-                                ),
-                              ),
-                              childWhenDragging: Text(
-                                pair['half1']!,
-                                style: TextStyle(fontSize: 40, color: Colors.grey),
-                              ),
-                              child: Text(
-                                pair['half1']!,
-                                style: TextStyle(fontSize: 40),
-                              ),
-                            ))
-                        .toList(),
+          ),
+          Center(
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 20, bottom: 20),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 149, 212, 106),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  // Second column with drag targets (RHS)
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: shuffledPairs
-                        .map((pair) => DragTarget<String>(
-                              builder: (context, candidateData, rejectedData) {
-                                bool isMatched = matchedPairs
-                                    .any((matched) =>
-                                        matched['half2'] == pair['half2']);
-                                return Container(
-                                  margin: EdgeInsets.symmetric(vertical: 20),
-                                  padding: EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: isMatched
-                                        ? Colors.green.shade300
-                                        : const Color.fromARGB(255, 137, 193, 226),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    pair['half2']!,
-                                    style: TextStyle(
-                                      fontSize: 40,
-                                      color: isMatched ? Colors.white : Colors.black,
+                  child: Text(
+                    'Match the Letters!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: currentPairs
+                            .map((pair) => Draggable<String>(
+                                  data: pair['half1']!,
+                                  feedback: Material(
+                                    color: Colors.transparent,
+                                    child: Text(
+                                      pair['half1']!,
+                                      style: TextStyle(
+                                        fontSize: 40,
+                                        color: Colors.blue,
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                              onWillAccept: (data) {
-                                // Accept only if the data matches the target
-                                return data == pair['half1'];
-                              },
-                              onAccept: (data) {
-                                setState(() {
-                                  matchedPairs.add({
-                                    'half1': data,
-                                    'half2': pair['half2']!,
-                                  });
-                                });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Matched $data with ${pair['half2']}!'),
-                                    backgroundColor: Colors.blue,
-                                    duration: Duration(seconds: 2),
+                                  childWhenDragging: Text(
+                                    pair['half1']!,
+                                    style:
+                                        TextStyle(fontSize: 40, color: Colors.grey),
                                   ),
-                                );
-                              },
-                            ))
-                        .toList(),
+                                  child: Text(
+                                    pair['half1']!,
+                                    style: TextStyle(fontSize: 40),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: shuffledPairs
+                            .map((pair) => DragTarget<String>(
+                                  builder: (context, candidateData, rejectedData) {
+                                    bool isMatched = matchedPairs.any((matched) =>
+                                        matched['half2'] == pair['half2']);
+                                    return Container(
+                                      margin:
+                                          const EdgeInsets.symmetric(vertical: 20),
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: isMatched
+                                            ? Colors.green.shade300
+                                            : Colors.blue.shade100,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        pair['half2']!,
+                                        style: TextStyle(
+                                          fontSize: 40,
+                                          color: isMatched
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  onWillAccept: (data) {
+                                    return data == pair['half1'];
+                                  },
+                                  onAccept: (data) {
+                                    setState(() {
+                                      matchedPairs.add({
+                                        'half1': data,
+                                        'half2': pair['half2']!,
+                                      });
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Matched $data with ${pair['half2']}!'),
+                                        backgroundColor: Colors.blue,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                ))
+                            .toList(),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            matchedPairs.clear(); // Reset matches
-            _initializeGame(); // Start a new game with shuffled positions
+            matchedPairs.clear();
+            _initializeGame();
           });
         },
-        child: Icon(Icons.refresh),
-        backgroundColor: Colors.blue,
+        child: const Icon(Icons.refresh),
+        backgroundColor: const Color.fromARGB(255, 80, 202, 114),
       ),
     );
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: MatchHalfGame(),
-  ));
-}

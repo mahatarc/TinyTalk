@@ -2,8 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class MatchFollowingGame extends StatefulWidget {
-  const MatchFollowingGame({super.key});
-
   @override
   _MatchFollowingGameState createState() => _MatchFollowingGameState();
 }
@@ -42,15 +40,15 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        elevation: 1,
+        backgroundColor: Colors.green.shade100,
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('images/b1.jpg'), // Background image for the screen
-            fit: BoxFit.cover,
+            image: AssetImage('images/b1.jpg'), // Replace with your background image path
+            fit: BoxFit.fill,
           ),
         ),
         child: Padding(
@@ -58,20 +56,16 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Instruction with background image for the text
-              const SizedBox(height: 100),
+              // Instruction
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: AssetImage('images/h1.png'), // Background image for the text
-                    fit: BoxFit.cover,  // Make the background image cover the entire area
-                  ),
+                  color: const Color.fromARGB(255, 141, 225, 96),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
-                  'जोड़ा मिलाउ',
+                  'Match the picture with its Nepali name!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 25,
@@ -94,7 +88,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                   feedback: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
-                                      boxShadow: const [
+                                      boxShadow: [
                                         BoxShadow(
                                           color: Colors.black26,
                                           blurRadius: 6,
@@ -104,8 +98,8 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                     ),
                                     child: Image.asset(
                                       pair['images']!,
-                                      height: 160, // Increased image size
-                                      width: 160,  // Increased image size
+                                      height: 80,
+                                      width: 80,
                                       fit: BoxFit.contain,
                                     ),
                                   ),
@@ -113,8 +107,8 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                     opacity: 0.5,
                                     child: Image.asset(
                                       pair['images']!,
-                                      height: 160, // Increased image size
-                                      width: 160,  // Increased image size
+                                      height: 140,
+                                      width: 140,
                                       fit: BoxFit.contain,
                                     ),
                                   ),
@@ -122,8 +116,8 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                     margin: const EdgeInsets.all(5),
                                     child: Image.asset(
                                       pair['images']!,
-                                      height: 160, // Increased image size
-                                      width: 160,  // Increased image size
+                                      height: 140,
+                                      width: 140,
                                       fit: BoxFit.contain,
                                     ),
                                   ),
@@ -161,8 +155,8 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                       ),
                                     );
                                   },
-                                  onWillAcceptWithDetails: (data) => data == pair['nepali'],
-                                  onAcceptWithDetails: (data) {
+                                  onWillAccept: (data) => data == pair['nepali'],
+                                  onAccept: (data) {
                                     // Correct Match
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

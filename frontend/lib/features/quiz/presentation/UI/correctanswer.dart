@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 class CorrectAnswer extends StatefulWidget {
-  const CorrectAnswer({super.key});
-
   @override
   _CorrectAnswerState createState() => _CorrectAnswerState();
 }
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
-  // Quiz data: List of questions with images, correct answers, and options
+  
   final List<Map<String, dynamic>> questions = [
     {
       'image': 'images/apple.png',
@@ -19,7 +17,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     {
       'image': 'images/elephant.png',
       'question': 'Identify from the picture:',
-      'options': ['भाघ', 'हात्ती', 'कुकुर', 'गाई'],
+      'options': ['बाघ', 'हात्ती', 'कुकुर', 'गाई'],
       'answer': 'हात्ती',
     },
     {
@@ -80,27 +78,36 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     final question = questions[currentQuestion];
     return Scaffold(
       appBar: AppBar(
-        
-        backgroundColor: Colors.orange.shade100,
+        backgroundColor: const Color.fromARGB(255, 116, 233, 98),
+        elevation: 0,
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
-        color: Colors.orange.shade100,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/bg2.jpg'), // Replace with your background image path
+            fit: BoxFit.fill,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Display image
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color.fromARGB(255, 168, 165, 0), width: 4),
-              ),
-              child: Image.asset(
-                question['image'],
-                fit: BoxFit.contain,
-              ),
+            Column(
+              children: [
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color.fromARGB(255, 168, 165, 0), width: 4),
+                  ),
+                  child: Image.asset(
+                    question['image'],
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             // Display question
@@ -164,19 +171,29 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
               ),
             ),
             const SizedBox(height: 16),
-            // Next button
-            ElevatedButton(
-              onPressed: nextQuestion,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            // Next button with wooden image
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                image: DecorationImage(
+                  image: AssetImage('images/h1.png'), // Wooden button texture
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: const Text(
-                'Next',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              child: ElevatedButton(
+                onPressed: nextQuestion,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.transparent, // Make button transparent to show wooden texture
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  shadowColor: Colors.transparent, // Remove shadow for cleaner look
+                ),
+                child: const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -191,18 +208,20 @@ class ResultScreen extends StatelessWidget {
   final int score;
   final int total;
 
-  const ResultScreen({super.key, required this.score, required this.total});
+  ResultScreen({required this.score, required this.total});
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, 
       appBar: AppBar(
         title: const Text('Result'),
-        backgroundColor: const Color.fromARGB(255, 130, 17, 156),
+        backgroundColor: const Color.fromARGB(255, 33, 159, 100),
+        elevation: 0, // No shadow
       ),
       body: Container(
         // Use a BoxDecoration with an image as the background
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('images/cong.png'), // Replace with your image path
             fit: BoxFit.cover, // Make sure the image covers the whole background
@@ -214,7 +233,7 @@ class ResultScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8), // Semi-transparent background to make text stand out
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color.fromARGB(255, 154, 37, 204), width: 4),
+              border: Border.all(color: const Color.fromARGB(255, 36, 166, 86), width: 4),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -224,7 +243,7 @@ class ResultScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: Color.fromARGB(255, 27, 215, 71),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -239,7 +258,7 @@ class ResultScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    backgroundColor: const Color.fromARGB(255, 187, 133, 207),
+                    backgroundColor: const Color.fromARGB(255, 133, 207, 153),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
