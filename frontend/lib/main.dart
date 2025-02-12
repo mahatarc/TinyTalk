@@ -7,7 +7,7 @@ import 'package:tiny_talks/features/signupPage/presentation/bloc/signup_bloc.dar
 import 'package:tiny_talks/features/signupPage/presentation/bloc/auth.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         ),
         home: const OnboardingPage(),
         routes: {
-          '/login': (context) => LoginPage(),
+          '/login': (context) => const LoginPage(),
           '/signup': (context) => const Signup(),
         },
       ),

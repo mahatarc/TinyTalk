@@ -24,7 +24,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState>{
       print("Password: ${event.password}");
 
       // Call the signup service method
-     final response = await signupService.signup(
+    final response = await signupService.signup(
     event.username,
     event.email,
     event.password,

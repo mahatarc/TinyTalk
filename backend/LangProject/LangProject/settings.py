@@ -25,6 +25,7 @@ SECRET_KEY = config.get("SECRET_KEY", "fallback-secret-key")
 DEBUG = config.get("DEBUG", True)
 
 ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
+ALLOWED_HOSTS = ['*']  # Allow all hosts (for development only)
 
 
 # Application definition
@@ -36,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'LangApp',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -46,8 +51,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware'
+
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.9:8000'
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'LangProject.urls'
 
 TEMPLATES = [
@@ -120,3 +134,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}
