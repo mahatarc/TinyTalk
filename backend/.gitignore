@@ -1,0 +1,31 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment folder
+django_env/
+
+# Django migrations
+**/migrations/
+
+# Database files
+db.sqlite3
+
+# IDE/Editor folders
+.idea/
+.vscode/
+
+# Node modules (if you are using frontend)
+node_modules/
+
+# Other files to ignore
+*.log
+*.pot
+*.py[cod]
+*.swp
+*.swo
+*.bak
+*.tmp
+config.json
