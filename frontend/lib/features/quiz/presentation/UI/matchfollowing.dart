@@ -20,6 +20,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
 
   late List<Map<String, String>> currentPairs;
   late List<Map<String, String>> shuffledPairs;
+  List<Map<String, String>> matchedPairs = [];
 
   @override
   void initState() {
@@ -35,6 +36,12 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
     // Shuffle the selected pairs for RHS display
     shuffledPairs = List.from(currentPairs);
     shuffledPairs.shuffle(Random());
+  }
+
+  void _handleMatch(String nepaliWord) {
+    setState(() {
+      matchedPairs.add(currentPairs.firstWhere((pair) => pair['nepali'] == nepaliWord));
+    });
   }
 
   @override
@@ -83,6 +90,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                     Expanded(
                       child: ListView(
                         children: currentPairs
+                            .where((pair) => !matchedPairs.contains(pair))
                             .map((pair) => Draggable<String>(
                                   data: pair['nepali']!,
                                   feedback: Container(
@@ -129,6 +137,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                     Expanded(
                       child: ListView(
                         children: shuffledPairs
+                            .where((pair) => !matchedPairs.contains(pair))
                             .map((pair) => DragTarget<String>(
                                   builder: (context, candidateData, rejectedData) {
                                     return Container(
@@ -158,6 +167,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                   onWillAccept: (data) => data == pair['nepali'],
                                   onAccept: (data) {
                                     // Correct Match
+                                    _handleMatch(data);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
