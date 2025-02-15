@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
+import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -28,7 +29,12 @@ class HomeScreen extends StatelessWidget {
                   height: 50,),
               
                   onPressed: () {
-                    print("Profile button tapped");
+                     Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ProfilePage(name: 'name', email: 'email',
+
+                              )),
+                            );
                   },
                 ),
                 const SizedBox(height: 1), // Spacing between icons
