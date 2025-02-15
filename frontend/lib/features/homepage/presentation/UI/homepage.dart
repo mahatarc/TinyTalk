@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
+import 'package:tiny_talks/features/profile/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -24,18 +25,23 @@ class HomeScreen extends StatelessWidget {
               children: [
                 IconButton(
                   icon: Image.asset('images/profile.png',
-                  width: 50, 
-                  height: 50,),
-              
+                    width: 50, 
+                    height: 50,
+                  ),
                   onPressed: () {
-                    print("Profile button tapped");
+                    // Navigate to Profile Page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ProfilePage()),
+                    );
                   },
                 ),
                 const SizedBox(height: 1), // Spacing between icons
                 IconButton(
                   icon: Image.asset('images/chest.png',
-                   width: 50, 
-                  height: 50,),
+                    width: 50, 
+                    height: 50,
+                  ),
                   onPressed: () {
                     print("Chest button tapped");
                   },
@@ -43,18 +49,17 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
+          
           // Play button
           Positioned(
             bottom: 200, // Adjust the vertical position of the play button
-            // left: 0,
-            // right: 0
             child: Center(
               child: GestureDetector(
                 onTap: () {
-                   Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const Home()),
-                            );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Home()),
+                  );
                 },
                 child: Image.asset(
                   'images/play.png',
@@ -69,6 +74,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 
 void main() {
   runApp(const MaterialApp(

@@ -86,12 +86,18 @@ WSGI_APPLICATION = 'LangProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config.get("DB_NAME", "tinytalk_db"),  # Use DB_NAME from config.json
+        'USER': config.get("DB_USER", "root"),  # Use DB_USER from config.json
+        'PASSWORD': config.get("DB_PASSWORD", ""),  # Use DB_PASSWORD from config.json
+        'HOST': config.get("DB_HOST", "localhost"),  # Use DB_HOST from config.json
+        'PORT': '3306',  # Default MySQL port (can be adjusted if needed)
     }
 }
+
 
 
 # Password validation
