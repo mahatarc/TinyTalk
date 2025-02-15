@@ -3,6 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
 
+// Olive Green Color Constants
+const Color oliveGreen = Color.fromARGB(255, 67, 129, 78);
+const Color oliveGreenLight = Color.fromARGB(255, 131, 127, 78);
+
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -18,83 +22,59 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final List<Widget> onBoardingPages = [
       OnboardingCard(
         image: "images/welcome.png",
-        title: 'Welcome to Tiny Talks!',
-        description:
-            'Your Nepali Learning Adventure Begins Here!',
+        title: '',
+        description: '',
         buttonText: 'Next',
         onPressed: () {
-          _pageController.animateToPage(
-            1,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.linear,
-          );
+          _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.linear);
         },
       ),
       OnboardingCard(
-        image: "images/onboarding.png",
-        title: 'Learn and Play with Joy',
-        description:
-            'Let’s Talk Nepali and Have Fun!',
+        image: "images/splash.png",
+        title: '',
+        description: '',
         buttonText: 'Next',
         onPressed: () {
-          _pageController.animateToPage(
-            2,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.linear,
-          );
+          _pageController.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.linear);
         },
       ),
       OnboardingCard(
-        image: "images/cube.png",
-        title: 'Learn Personally',
-        description:
-            'Your Nepali Learning Adventure Begins Here!',
+        image: "images/splash2.png",
+        title: '',
+        description: '',
         buttonText: 'Done',
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
         },
       ),
     ];
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 50.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                children: onBoardingPages,
-              ),
-            ),
-            SmoothPageIndicator(
+      body: Stack(
+        children: [
+          PageView(controller: _pageController, children: onBoardingPages),
+          Positioned(
+            bottom: 30,
+            left: MediaQuery.sizeOf(context).width / 2 - 50,
+            child: SmoothPageIndicator(
               controller: _pageController,
               count: onBoardingPages.length,
-              effect: ExpandingDotsEffect(
-                activeDotColor: Theme.of(context).colorScheme.primary,
-                dotColor: Theme.of(context).colorScheme.secondary,
+              effect: const ExpandingDotsEffect(
+                activeDotColor: oliveGreen,
+                dotColor: oliveGreenLight,
               ),
               onDotClicked: (index) {
-                _pageController.animateToPage(
-                  index,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.linear,
-                );
+                _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.linear);
               },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
+// Updated OnboardingCard with Olive Green Button
 class OnboardingCard extends StatelessWidget {
   final String image, title, description, buttonText;
   final Function onPressed;
@@ -110,62 +90,68 @@ class OnboardingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.80,
-      width: MediaQuery.sizeOf(context).width,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(50.0),
-            child: Image.asset(
-              image,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Column(
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.lobster(
-                      textStyle: const TextStyle(
-                        color: Color.fromARGB(255, 199, 158, 158),
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  description,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isLandscape = constraints.maxWidth > constraints.maxHeight;
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // Full-screen background image
+            Image.asset(image, fit: BoxFit.cover),
+
+            // Dark overlay for readability
+            Container(color: Colors.black.withOpacity(0.3)),
+
+            // Responsive content layout
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[700], 
-                    fontSize: 18,
-                    fontWeight: FontWeight.w300,
-                    fontFamily: 'Times New Roman', // Custom font family for the description
+                  style: GoogleFonts.lobster(
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: isLandscape ? 48 : 36,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              )
-            ],
-          ),
-          MaterialButton(
-            minWidth: 300,
-            onPressed: () => onPressed(),
-            color: Theme.of(context).colorScheme.primary,
-            child: Text(
-              buttonText,
-              style: const TextStyle(
-                color: Colors.white,
-              ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isLandscape ? 100.0 : 20.0),
+                  child: Text(
+                    description,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: isLandscape ? 24 : 18,
+                      fontWeight: FontWeight.w300,
+                      fontFamily: 'Times New Roman',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                MaterialButton(
+                  minWidth: isLandscape ? 300 : 200,
+                  onPressed: () => onPressed(),
+                  color: oliveGreen,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Text(
+                    buttonText,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isLandscape ? 24 : 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
             ),
-          )
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
