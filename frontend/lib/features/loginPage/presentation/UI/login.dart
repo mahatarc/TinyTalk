@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
   String? errorMessage;
@@ -23,12 +23,12 @@ class _LoginPageState extends State<LoginPage> {
   final String apiUrl = "http://192.168.1.70:8000/api/login/"; // Adjust to your backend
 
   Future<void> login() async {
-    final String email = emailController.text.trim();
+    final String username = usernameController.text.trim();
     final String password = passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty) {
       setState(() {
-        errorMessage = "Please enter both email and password.";
+        errorMessage = "Please enter both username and password.";
       });
       return;
     }
@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "username": email, // Django API expects "username" instead of "email"
+          "username": username, // Using "username" instead of "email"
           "password": password,
         }),
       );
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else {
         setState(() {
-          errorMessage = "Incorrect email or password.";
+          errorMessage = "Incorrect username or password.";
         });
       }
     } catch (e) {
@@ -127,20 +127,20 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Email field
+                  // Username field (previously email field)
                   TextField(
-                    controller: emailController,
+                    controller: usernameController,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.8),
-                      hintText: 'Email',
-                      prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                      hintText: 'Username',
+                      prefixIcon: const Icon(Icons.person, color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                   ),
                   const SizedBox(height: 20),
 
