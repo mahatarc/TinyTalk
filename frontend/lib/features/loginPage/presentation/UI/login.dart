@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('images/background1.jpg'),
+                image: AssetImage('images/logbg.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -178,13 +178,13 @@ class _LoginPageState extends State<LoginPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      backgroundColor: const Color(0xFF50D6E5),
+                      backgroundColor: Colors.brown[500],
                     ),
                     child: isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'Login',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color:Colors.green ),
                           ),
                   ),
                   const SizedBox(height: 20),

@@ -90,7 +90,7 @@ void dispose() {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('images/background1.jpg'),
+                image: AssetImage('images/logbg.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -157,11 +157,11 @@ void dispose() {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      backgroundColor: const Color(0xFF50D6E5),
+                      backgroundColor: Colors.brown[500],
                     ),
                     child: Text(
                       _currentPage == _pages.length - 1 ? 'Signup' : 'Next',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
                     ),
                   ),
                 ),
