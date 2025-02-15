@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
                     // Navigate to Profile Page
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const ProfilePage()),
+                      MaterialPageRoute(builder: (context) => const ProfilePage(name: '', email: '')),
                     );
                   },
                 ),
@@ -74,7 +74,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
 
 void main() {
   runApp(const MaterialApp(

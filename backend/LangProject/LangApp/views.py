@@ -1,18 +1,15 @@
 from django.contrib.auth import authenticate
+from django.http import HttpResponse
 from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import SignupSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.http import HttpResponse
-from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken
+from .serializers import SignupSerializer
 
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
-
 
 # Function to generate JWT tokens for a user
 def get_tokens_for_user(user):
@@ -22,6 +19,7 @@ def get_tokens_for_user(user):
         'access': str(refresh.access_token),
     }
 
+# Signup API
 class SignupAPIView(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -30,6 +28,7 @@ class SignupAPIView(APIView):
             return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Login API
 class LoginAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -44,19 +43,28 @@ class LoginAPIView(APIView):
 
         return Response({
             "message": "Login successful",
-            "tokens": tokens
+            "tokens": tokens,
+            "user": {
+                "name": user.username,   # Send the username as "name"
+                "email": user.email      # Send the email
+            }
         }, status=status.HTTP_200_OK)
 
-
+# Protected API - Requires Authentication
 class ProtectedAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Only authenticated users can access
+    permission_classes = [IsAuthenticated]  # Ensures only authenticated users can access
 
     def get(self, request):
-        # Token validation (optional, in case you want to manually validate)
-        token = request.headers.get('Authorization', '').split(' ')[1]
-        try:
-            UntypedToken(token)  # Manually decode the token
-        except Exception as e:
-            raise AuthenticationFailed('...............................Invalid token.....................................')
+        # Retrieve token from request headers
+        auth_header = request.headers.get('Authorization')
 
-        return Response({"message": "You are authenticated!.............................."})
+        if not auth_header or ' ' not in auth_header:
+            raise AuthenticationFailed("Missing or invalid Authorization header")
+
+        try:
+            token = auth_header.split(' ')[1]  # Extract token
+            UntypedToken(token)  # Validate token
+        except Exception:
+            raise AuthenticationFailed("Invalid token. Please log in again.")
+
+        return Response({"message": "You are authenticated!"}, status=status.HTTP_200_OK)

@@ -44,7 +44,7 @@ class Home extends StatelessWidget {
                         // Navigate to Profile Page
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ProfilePage()),
+                          MaterialPageRoute(builder: (context) => const ProfilePage(name: '', email: '')),
                         );
                       },
                       child: Image.asset(

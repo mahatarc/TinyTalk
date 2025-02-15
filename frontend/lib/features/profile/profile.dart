@@ -1,132 +1,81 @@
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  final String name;
+  final String email;
+
+  const ProfilePage({super.key, required this.name, required this.email});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('images/bg99.jpg'), // Background image
-            fit: BoxFit.cover, // Ensure the background covers the screen
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-            crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 100),
-
-              // Profile Picture with circular border
-              CircleAvatar(
+              // Profile Picture
+              const CircleAvatar(
                 radius: 60,
-                backgroundImage: AssetImage('images/profile.png'), // User's profile image
-                backgroundColor: Colors.green, // Jungle color to match theme
+                backgroundImage: AssetImage('images/profile.png'),
+                backgroundColor: Colors.green,
               ),
               const SizedBox(height: 20),
-
-              // Name with background image for better visibility
-              Container(
-                width: double.infinity,
-                height: 70, // Set height for the container
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('images/h1.png'), // Image for text background
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Text(
-                  'JohnDoe', // Replace with dynamic name
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // White text for visibility
-                    fontFamily: 'Quicksand',
-                  ),
-                  textAlign: TextAlign.center, // Center the text
-                ),
-              ),
+              // Name Field (Dynamic)
+              buildInfoContainer(name),
+              // Email Field (Dynamic)
+              buildInfoContainer(email),
+              // Score (Static for now, make dynamic later)
+              buildInfoContainer("Score: 150 Points"),
               const SizedBox(height: 10),
-
-              // Email with background image for better visibility
-              Container(
-                width: double.infinity,
-                height: 70,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('images/h1.png'), // Image for text background
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Text(
-                  'johndoe@example.com', // Replace with dynamic email
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white, // White text for visibility
-                    fontFamily: 'Quicksand',
-                  ),
-                  textAlign: TextAlign.center, // Center the text
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Score Points with background image for better visibility
-              Container(
-                width: double.infinity,
-                height: 70,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('images/h1.png'), // Image for text background
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Text(
-                  'Score: 150 Points', // Replace with dynamic score
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white, // White text for visibility
-                    fontFamily: 'Quicksand',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-             
-              //const SizedBox(height: 20),
-
               // Logout Button
               ElevatedButton(
                 onPressed: () {
-                  // Add your logout functionality here
+                  // Add logout functionality here
                   print("Logged out");
-                  // Navigate to login or home page
+                  Navigator.pop(context); // Navigate back to login
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Button color
+                  backgroundColor: Colors.green,
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
                 ),
                 child: const Text(
                   'Logout',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontFamily: 'Quicksand',
-                  ),
+                  style: TextStyle(fontSize: 18, color: Colors.white, fontFamily: 'Quicksand'),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Reusable Widget for Info Containers
+  Widget buildInfoContainer(String text) {
+    return Container(
+      width: double.infinity,
+      height: 70,
+      decoration: BoxDecoration(
+        image: const DecorationImage(
+          image: AssetImage('images/h1.png'),
+          fit: BoxFit.cover,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Quicksand'),
+        textAlign: TextAlign.center,
       ),
     );
   }
