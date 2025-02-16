@@ -30,7 +30,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         },
       ),
       OnboardingCard(
-        image: "images/splash.png",
+        image: "images/splash1.png",
         title: '',
         description: '',
         buttonText: 'Next',
