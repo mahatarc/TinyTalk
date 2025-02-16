@@ -26,11 +26,20 @@ from django.http import JsonResponse
 from django.contrib.auth import update_session_auth_hash
 from django.views import View  # Import View class
 import logging
+from rest_framework.decorators import api_view, permission_classes
 
 
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    return Response({
+        'username': user.username,
+        'email': user.email,
+    })
 
 # Function to generate JWT tokens for a user
 def get_tokens_for_user(user):
