@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
-import 'package:tiny_talks/features/profile/profile.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -41,11 +40,8 @@ class Home extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // Navigate to Profile Page
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ProfilePage(name: '', email: '')),
-                        );
+                        // Add action for profile icon
+                        print("Profile icon tapped");
                       },
                       child: Image.asset(
                         'images/profile.png', // Replace with your profile image path
@@ -68,8 +64,6 @@ class Home extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-             
               const SizedBox(height: 200), // Spacer for content positioning
               Expanded(
                 child: ListView(

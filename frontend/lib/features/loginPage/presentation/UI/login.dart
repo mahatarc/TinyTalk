@@ -48,21 +48,33 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
+      // Debugging: Print response body and status code
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final String accessToken = data["tokens"]["access"];
-        final String refreshToken = data["tokens"]["refresh"];
 
-        // Store tokens securely using SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("access_token", accessToken);
-        await prefs.setString("refresh_token", refreshToken);
+        // Ensure the correct response structure
+        if (data["tokens"] != null) {
+          final String accessToken = data["tokens"]["access"];
+          final String refreshToken = data["tokens"]["refresh"];
 
-        // Navigate to HomeScreen on successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+          // Store tokens securely using SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString("access_token", accessToken);
+          await prefs.setString("refresh_token", refreshToken);
+
+          // Navigate to HomeScreen on successful login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        } else {
+          setState(() {
+            errorMessage = "Invalid login response from server.";
+          });
+        }
       } else {
         setState(() {
           errorMessage = "Incorrect username or password.";
@@ -72,6 +84,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         errorMessage = "Something went wrong. Please try again.";
       });
+      print('Error: $e');
     } finally {
       setState(() {
         isLoading = false;
@@ -184,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'Login',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color:Colors.green ),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
                           ),
                   ),
                   const SizedBox(height: 20),

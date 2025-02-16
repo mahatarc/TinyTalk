@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
 import 'package:tiny_talks/features/signupPage/presentation/bloc/signup_bloc.dart';
+
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -41,14 +42,14 @@ class _SignupState extends State<Signup> {
       PasswordPage(_passwordController),
     ];
   }
-  @override
-void dispose() {
-  _usernameController.dispose();
-  _emailController.dispose();
-  _passwordController.dispose();
-  super.dispose();
-}
 
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _nextPage() {
     if (_currentPage < _pages.length - 1) {
@@ -81,180 +82,122 @@ void dispose() {
       bloc: signUpBloc,
       listenWhen: (previous, current) => current is SignUpActionState,
       buildWhen: (previous, current) => current is! SignUpActionState,
+      
       builder: (context, state) {
-      if (state is SignUpInitialState){
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background image
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('images/logbg.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // Gradient overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.6),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          // Signup form
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back arrow on UsernamePage
-              if (_currentPage == 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0, left: 16.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: _previousPage,
+        if (state is SignUpInitialState) {
+          return Scaffold(
+            body: Stack(
+              children: [
+                // Background image
+                Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('images/logbg.png'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _pages.length,
-                  itemBuilder: (context, index) {
-                    return _pages[index];
-                  },
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
+                // Gradient overlay
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.black.withOpacity(0.3),
+                        Colors.black.withOpacity(0.6),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-      onPressed: _currentPage == _pages.length - 1
-          ? () {
-              // Dispatch SignUpButtonPressedEvent to the SignUpBloc
-              context.read<SignUpBloc>().add(
-                SignUpButtonPressedEvent(
-                  email: _emailController.text.trim(),
-                  password: _passwordController.text.trim(),
-                  username: _usernameController.text.trim(),
-                ),
-              );
-            }
-          : _nextPage, 
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                // Signup form
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Back arrow on UsernamePage
+                    if (_currentPage == 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40.0, left: 16.0),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: _previousPage,
+                        ),
                       ),
-                      backgroundColor: Colors.brown[500],
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: _pages.length,
+                        itemBuilder: (context, index) {
+                          return _pages[index];
+                        },
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                      ),
                     ),
-                    child: Text(
-                      _currentPage == _pages.length - 1 ? 'Signup' : 'Next',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: _currentPage == _pages.length - 1
+                              ? () {
+                                  context.read<SignUpBloc>().add(
+                                    SignUpButtonPressedEvent(
+                                      email: _emailController.text.trim(),
+                                      password: _passwordController.text.trim(),
+                                      username: _usernameController.text.trim(),
+                                    ),
+                                  );
+                                  // Show dialog for email verification
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Verify Your Email"),
+                                      content: Text("A verification email has been sent to ${_emailController.text.trim()}. Please verify before logging in."),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              : _nextPage,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            backgroundColor: Colors.brown[500],
+                          ),
+                          child: Text(
+                            _currentPage == _pages.length - 1 ? 'Signup' : 'Next',
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-    }
-    else {
+              ],
+            ),
+          );
+        } else {
           return const Scaffold();
-    }
+        }
       },
       listener: (context, state) {
         if (state is SignUpButtonPressedNavigateToHome) {
-           Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Home()),
-           );
-        } 
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Home()),
+          );
+        }
       },
-    );
-  }
-}
-
-class BirthdayPage extends StatefulWidget {
-  const BirthdayPage({super.key});
-
-  @override
-  _BirthdayPageState createState() => _BirthdayPageState();
-}
-
-class _BirthdayPageState extends State<BirthdayPage> {
-  DateTime? _selectedDate;
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Select Birthday',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.lobster(
-                textStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Birthday selection widgets
-            ElevatedButton(
-              onPressed: () => _selectDate(context),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 12.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                backgroundColor: const Color(0xFF50D6E5).withOpacity(0.6),
-
-              ),
-              child: Text(
-                _selectedDate == null
-                    ? 'Select Date'
-                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -318,6 +261,7 @@ class EmailPage extends StatefulWidget {
   @override
   _EmailPageState createState() => _EmailPageState();
 }
+
 class _EmailPageState extends State<EmailPage> {
   @override
   Widget build(BuildContext context) {
@@ -360,6 +304,7 @@ class _EmailPageState extends State<EmailPage> {
     );
   }
 }
+
 class PasswordPage extends StatefulWidget {
   final TextEditingController passwordController;
   

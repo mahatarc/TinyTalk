@@ -10,6 +10,8 @@ class SignUpActionState extends SignUpState{}
 
 class SignUpButtonPressedNavigateToHome extends SignUpActionState{}
 
+class SignUpButtonPressedWaitForVerification extends SignUpState {}
+
 class SignUpLoagedState extends SignUpState{}
 
 class SignUpErrorState extends SignUpState{

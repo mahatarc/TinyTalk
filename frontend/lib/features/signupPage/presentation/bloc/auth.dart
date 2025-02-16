@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class SignupService {
   final String apiUrl = "http://192.168.1.70:8000/api/signup/";
 
-  Future<Map<String, dynamic>> signup(String username, String email, String password) async {
+   Future<Map<String, dynamic>> signup(String username, String email, String password) async {
     try {
       print("Attempting API call: $apiUrl");
 
