@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
+import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
 import 'package:tiny_talks/features/signupPage/presentation/bloc/signup_bloc.dart';
 
 void main() {
@@ -159,7 +160,14 @@ class _SignupState extends State<Signup> {
                                       content: Text("A verification email has been sent to ${_emailController.text.trim()}. Please verify before logging in."),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Navigator.pop(context),
+                                          onPressed: () {
+  Navigator.pop(context); // Close the dialog
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const LoginPage()), // Redirect to login page
+  );
+},
+
                                           child: Text("OK"),
                                         ),
                                       ],
