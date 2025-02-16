@@ -29,3 +29,5 @@ node_modules/
 *.bak
 *.tmp
 config.json
+.env
+fine_tuned_model/
