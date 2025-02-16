@@ -1,81 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ProfilePage extends StatelessWidget {
-  final String name;
-  final String email;
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
 
-  const ProfilePage({super.key, required this.name, required this.email});
+class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile(); // Call the fetch profile function on widget initialization
+  }
+
+  // Function to fetch the profile data
+  Future<void> _fetchProfile() async {
+    try {
+      // Replace with the correct API endpoint
+      final response = await http.get(Uri.parse('http://192.168.1.5:8000/api/profile/'));
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response from the backend
+        var data = json.decode(response.body);
+
+        setState(() {
+          // Check if the data fields are null, otherwise set the values
+          username = data['username'] ?? 'Default Username';
+          email = data['email'] ?? 'No Email Provided';
+        });
+      } else {
+        // If the response status is not 200, print an error
+        print('Error fetching profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle network or other errors
+      print('Error occurred while fetching profile: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/bg99.jpg'), // Background image
-            fit: BoxFit.cover,
-          ),
+      appBar: AppBar(title: Text('Profile')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Display the username and email in text widgets
+            Text('Username: $username', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 10),
+            Text('Email: $email', style: TextStyle(fontSize: 18)),
+          ],
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 100),
-              // Profile Picture
-              const CircleAvatar(
-                radius: 60,
-                backgroundImage: AssetImage('images/profile.png'),
-                backgroundColor: Colors.green,
-              ),
-              const SizedBox(height: 20),
-              // Name Field (Dynamic)
-              buildInfoContainer(name),
-              // Email Field (Dynamic)
-              buildInfoContainer(email),
-              // Score (Static for now, make dynamic later)
-              buildInfoContainer("Score: 150 Points"),
-              const SizedBox(height: 10),
-              // Logout Button
-              ElevatedButton(
-                onPressed: () {
-                  // Add logout functionality here
-                  print("Logged out");
-                  Navigator.pop(context); // Navigate back to login
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-                ),
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 18, color: Colors.white, fontFamily: 'Quicksand'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Reusable Widget for Info Containers
-  Widget buildInfoContainer(String text) {
-    return Container(
-      width: double.infinity,
-      height: 70,
-      decoration: BoxDecoration(
-        image: const DecorationImage(
-          image: AssetImage('images/h1.png'),
-          fit: BoxFit.cover,
-        ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Quicksand'),
-        textAlign: TextAlign.center,
       ),
     );
   }
