@@ -103,12 +103,12 @@ WSGI_APPLICATION = 'LangProject.wsgi.application'
 # Database Configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config.get("DB_NAME", "tinytalk_db"),
-        'USER': config.get("DB_USER", "root"),
-        'PASSWORD': config.get("DB_PASSWORD", "944777"),
-        'HOST': config.get("DB_HOST", "localhost"),
-        'PORT': '3306',
+        'NAME': config.get('DB_NAME'),
+        'HOST': config.get('DB_HOST'),
+        'USER': config.get('DB_USER'),
+        'PASSWORD': config.get('DB_PASSWORD'),
+
+ 
     }
 }
 
@@ -155,3 +155,4 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
+
