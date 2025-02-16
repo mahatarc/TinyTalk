@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
+
   @override
   _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
 }
@@ -20,19 +22,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       });
       return;
     }
-
     setState(() {
       isLoading = true;
       message = null;
     });
-
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.1.5:8000/api/password_reset/"), // Your Django backend URL
+        Uri.parse("http://192.168.1.5:8000/api/password_reset/"), // URL for password reset request
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"email": email}),
       );
-
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         setState(() {
@@ -57,21 +56,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Forgot Password")),
+      appBar: AppBar(title: const Text("Forgot Password")),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Enter your email",
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             if (message != null)
               Text(
                 message!,
@@ -80,12 +79,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         ? Colors.green
                         : Colors.red),
               ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: isLoading ? null : sendResetRequest,
               child: isLoading
-                  ? CircularProgressIndicator()
-                  : Text("Send Reset Email"),
+                  ? const CircularProgressIndicator()
+                  : const Text("Send Reset Email"),
             ),
           ],
         ),
