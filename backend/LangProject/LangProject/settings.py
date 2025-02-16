@@ -88,8 +88,11 @@ WSGI_APPLICATION = 'LangProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config.get('DB_NAME'),
+        'HOST': config.get('DB_HOST'),
+        'USER': config.get('DB_USER'),
+        'PASSWORD': config.get('DB_PASSWORD'),
     }
 }
 
@@ -145,6 +148,9 @@ REST_FRAMEWORK = {
 }
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+   'ACCESS_TOKEN_LIFETIME' :timedelta(days=30),
+   'ACCESS_TOKEN_LIFETIME' :timedelta(days=30), 
+   'AUTH_HEADER_TYPES': ('Bearer',),
+   'ROTATE_REFRESH_TOKENS': True,
+   'BLACKLIST_AFTER_ROTATION': True,
 }

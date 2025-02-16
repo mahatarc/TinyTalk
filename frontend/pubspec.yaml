@@ -76,8 +76,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/background1.jpg
-    - audio/ka.mp3
+    - audio/0.mp3
+    - audio/1.mp3
     - images/
+    - audio/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
