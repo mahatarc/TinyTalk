@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import the package to lock orientation
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
@@ -8,6 +9,12 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Lock the orientation to portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return Scaffold(
       extendBodyBehindAppBar: true, // Extend body behind the app bar
       appBar: AppBar(
