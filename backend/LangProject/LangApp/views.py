@@ -16,6 +16,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated  # Added IsAuth
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpResponse
 from rest_framework_simplejwt.tokens import UntypedToken
+from .serializers import ForgotPasswordSerializer
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import SetPasswordForm
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.contrib.auth import update_session_auth_hash
+from django.views import View  # Import View class
+import logging
 
 
 def home(request):
@@ -123,3 +133,61 @@ class VerifyEmailAPIView(APIView):
             return JsonResponse({"message": "Email verified successfully!"}, status=200)
         else:
             return JsonResponse({"error": "Invalid token."}, status=400)
+
+class ForgotPasswordView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return JsonResponse({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Create a password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(str(user.pk).encode())
+            domain = get_current_site(request).domain
+            link = f'http://{domain}/reset_password/{uid}/{token}/'
+
+            # Render the password reset email template
+            subject = 'Reset Your Password'
+            message = f'Click the following link to reset your password: {link}'
+
+            # Send the password reset email
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+            return JsonResponse({"message": "Password reset email sent!"}, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# Set up logging to capture form data and errors
+logger = logging.getLogger(__name__)
+
+class PasswordResetConfirmView(View):
+    def post(self, request, uidb64, token):
+        try:
+            # Decode the uid from the URL
+            uid = urlsafe_base64_decode(uidb64).decode()
+            # Get the user corresponding to the uid
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return JsonResponse({"message": "Invalid or expired link."}, status=400)
+
+        # Check if the token is valid
+        if not default_token_generator.check_token(user, token):
+            return JsonResponse({"message": "Invalid or expired link."}, status=400)
+
+        # Get the new password and confirm password from the request
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Ensure passwords match
+        if new_password != confirm_password:
+            return JsonResponse({"message": "Passwords do not match."}, status=400)
+
+        # Set the new password for the user
+        user.set_password(new_password)
+        user.save()
+
+        # Return success message
+        return JsonResponse({"message": "Password has been reset successfully."}, status=200)

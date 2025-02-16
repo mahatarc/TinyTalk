@@ -23,6 +23,8 @@ EMAIL_TIMEOUT = 10  # Prevent long waits
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default sender email
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
+PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_email.txt'
+
 # Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -73,7 +75,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
-CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+CSRF_COOKIE_SECURE = False  # Set to True for production with HTTPS
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_NAME = 'csrftoken'
 SESSION_COOKIE_SECURE = True  # Secure session handling
 
 ROOT_URLCONF = 'LangProject.urls'
@@ -81,7 +85,7 @@ ROOT_URLCONF = 'LangProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

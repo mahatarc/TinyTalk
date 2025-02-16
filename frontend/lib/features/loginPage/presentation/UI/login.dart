@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart';
+import 'package:tiny_talks/features/loginPage/presentation/UI/ForgotPasswordPage.dart';
 import 'package:tiny_talks/features/signupPage/presentation/UI/signupPage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -20,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   String? errorMessage;
 
   // Define your API URL
-  final String apiUrl = "http://192.168.1.4:8000/api/login/"; // Adjust to your backend
+  final String apiUrl = "http://192.168.1.5:8000/api/login/"; // Adjust to your backend
 
   Future<void> login() async {
     final String username = usernameController.text.trim();
@@ -203,13 +204,19 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
 
                   // Forgot password
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+                 TextButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+    );
+  },
+  child: const Text(
+    'Forgot Password?',
+    style: TextStyle(color: Colors.white),
+  ),
+),
+
                   const SizedBox(height: 10),
 
                   // Sign up option

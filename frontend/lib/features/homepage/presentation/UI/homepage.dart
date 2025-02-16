@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                      Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => ProfilePage(name: 'name', email: 'email',
+                              MaterialPageRoute(builder: (context) => ProfilePage(
 
                               )),
                             );
