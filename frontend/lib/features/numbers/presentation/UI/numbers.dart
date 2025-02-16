@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
+
 class Numbers extends StatefulWidget {
   const Numbers({super.key});
 
@@ -15,6 +16,7 @@ class Numbers extends StatefulWidget {
 }
 
 class _NumbersState extends State<Numbers> {
+
   final List<String> _numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   final List<String> _backgroundImages = [
     'images/0.png', 'images/1.png', 'images/2.png', 'images/3.png',
@@ -45,15 +47,12 @@ class _NumbersState extends State<Numbers> {
     }
   }
 
-  // Updated _playSound method with the correct path
-  Future<void> _playSound() async {
-    String audioPath = "assets/audio/${_numbers[_currentNumberIndex]}.mp3"; // Correct path to assets folder
-    try {
-      await _audioPlayer.play(AssetSource(audioPath)); // Use AssetSource for assets folder
-    } catch (e) {
-      print('Error playing sound: $e');
-    }
-  }
+  // Function to play the corresponding audio
+void _playAudio() async {
+  // Ensure you're using the correct method to load the audio file
+  await _audioPlayer.setSource(AssetSource('audio/${_numbers[_currentNumberIndex]}.wav'));
+  await _audioPlayer.resume(); // Play the audio
+}
 
   void _toggleRecording() async {
     if (_isRecording) {
@@ -190,6 +189,8 @@ Future<void> _evaluateSpeech(File audioFile) async {
     super.dispose();
   }
 
+ 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,6 +209,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
           children: [
             Image.asset(
               _backgroundImages[_currentNumberIndex],
+
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
@@ -217,17 +219,19 @@ Future<void> _evaluateSpeech(File audioFile) async {
               left: 30.0,
               child: IconButton(
                 icon: const Icon(Icons.volume_up, size: 40.0),
-                onPressed: _playSound, // Calls _playSound() when pressed
+                onPressed: _playAudio, // Play the corresponding audio when volume button is pressed
               ),
             ),
             Positioned(
               bottom: 200.0,
               child: GestureDetector(
-                onTap: _toggleRecording,
+                onTap: () {
+                  // Removed recording toggle logic
+                },
                 child: Icon(
                   Icons.mic,
                   size: 80.0,
-                  color: _isRecording ? Colors.red : Colors.black,
+                  color: Colors.black, // Default mic color
                 ),
               ),
             ),

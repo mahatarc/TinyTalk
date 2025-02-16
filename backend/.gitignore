@@ -6,6 +6,7 @@ __pycache__/
 
 # Virtual environment folder
 django_env/
+venv/
 
 # Django migrations
 **/migrations/
@@ -31,3 +32,4 @@ node_modules/
 config.json
 .env
 fine_tuned_model/
+
