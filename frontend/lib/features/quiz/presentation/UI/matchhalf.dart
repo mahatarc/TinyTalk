@@ -49,6 +49,8 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
   List<Map<String, String>> currentPairs = [];
   List<Map<String, String>> shuffledPairs = [];
   List<Map<String, String>> matchedPairs = [];
+  int coins = 0;
+  bool isGameCompleted = false;
 
   @override
   void initState() {
@@ -62,6 +64,17 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
     currentPairs = shuffledNepaliPairs.take(3).toList();
     shuffledPairs = List.from(currentPairs);
     shuffledPairs.shuffle(Random());
+    matchedPairs.clear();
+    isGameCompleted = false;
+  }
+
+  void _checkGameCompletion() {
+    if (matchedPairs.length == currentPairs.length) {
+      setState(() {
+        coins += 30;
+        isGameCompleted = true;
+      });
+    }
   }
 
   @override
@@ -73,10 +86,9 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
       ),
       body: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: Image.asset(
-              'images/bg.jpg', // Replace with your image path
+              'images/bg.jpg',
               fit: BoxFit.cover,
             ),
           ),
@@ -99,90 +111,104 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: currentPairs
-                            .map((pair) => Draggable<String>(
-                                  data: pair['half1']!,
-                                  feedback: Material(
-                                    color: Colors.transparent,
-                                    child: Text(
-                                      pair['half1']!,
-                                      style: TextStyle(
-                                        fontSize: 40,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                  childWhenDragging: Text(
-                                    pair['half1']!,
-                                    style:
-                                        TextStyle(fontSize: 40, color: Colors.grey),
-                                  ),
-                                  child: Text(
-                                    pair['half1']!,
-                                    style: TextStyle(fontSize: 40),
-                                  ),
-                                ))
-                            .toList(),
+                if (isGameCompleted)
+                  Expanded(
+                    child: Center(
+                      child: Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          'Congratulations! You got 30 coins! 🎉',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: shuffledPairs
-                            .map((pair) => DragTarget<String>(
-                                  builder: (context, candidateData, rejectedData) {
-                                    bool isMatched = matchedPairs.any((matched) =>
-                                        matched['half2'] == pair['half2']);
-                                    return Container(
-                                      margin:
-                                          const EdgeInsets.symmetric(vertical: 20),
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: isMatched
-                                            ? Colors.green.shade300
-                                            : Colors.blue.shade100,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: currentPairs
+                              .map((pair) => Draggable<String>(
+                                    data: pair['half1']!,
+                                    feedback: Material(
+                                      color: Colors.transparent,
                                       child: Text(
-                                        pair['half2']!,
+                                        pair['half1']!,
                                         style: TextStyle(
                                           fontSize: 40,
-                                          color: isMatched
-                                              ? Colors.white
-                                              : Colors.black,
+                                          color: Colors.blue,
                                         ),
                                       ),
-                                    );
-                                  },
-                                  onWillAccept: (data) {
-                                    return data == pair['half1'];
-                                  },
-                                  onAccept: (data) {
-                                    setState(() {
-                                      matchedPairs.add({
-                                        'half1': data,
-                                        'half2': pair['half2']!,
+                                    ),
+                                    childWhenDragging: Text(
+                                      pair['half1']!,
+                                      style: TextStyle(
+                                          fontSize: 40, color: Colors.grey),
+                                    ),
+                                    child: Text(
+                                      pair['half1']!,
+                                      style: TextStyle(fontSize: 40),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: shuffledPairs
+                              .map((pair) => DragTarget<String>(
+                                    builder: (context, candidateData, rejectedData) {
+                                      bool isMatched = matchedPairs.any((matched) =>
+                                          matched['half2'] == pair['half2']);
+                                      return Container(
+                                        margin: const EdgeInsets.symmetric(vertical: 20),
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: isMatched
+                                              ? Colors.green.shade300
+                                              : Colors.blue.shade100,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          pair['half2']!,
+                                          style: TextStyle(
+                                            fontSize: 40,
+                                            color: isMatched
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    onWillAccept: (data) {
+                                      return data == pair['half1'];
+                                    },
+                                    onAccept: (data) {
+                                      setState(() {
+                                        matchedPairs.add({
+                                          'half1': data,
+                                          'half2': pair['half2']!,
+                                        });
                                       });
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            'Matched $data with ${pair['half2']}!'),
-                                        backgroundColor: Colors.blue,
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  },
-                                ))
-                            .toList(),
-                      ),
-                    ],
+                                      _checkGameCompletion();
+                                    },
+                                  ))
+                              .toList(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -201,4 +227,3 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
     );
   }
 }
-
