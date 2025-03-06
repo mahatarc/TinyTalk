@@ -23,7 +23,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.views import View  # Import View class
 import logging
 from rest_framework.decorators import api_view, permission_classes
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
@@ -47,6 +48,10 @@ def get_tokens_for_user(user):
 
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request):
         username = request.data.get('username')
@@ -79,6 +84,10 @@ class SignupAPIView(APIView):
 
 
 class LoginAPIView(APIView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -141,6 +150,11 @@ class VerifyEmailAPIView(APIView):
 
 
 class ForgotPasswordView(APIView):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         serializer = ForgotPasswordSerializer(data=request.data)
         if serializer.is_valid():

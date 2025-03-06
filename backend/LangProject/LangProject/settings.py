@@ -68,6 +68,12 @@ MIDDLEWARE = [
 ]
 
 # CORS and CSRF Security
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.70:8000'  # Allow backend host
+    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
+]
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
     'http://192.168.1.9:8000',
@@ -76,7 +82,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
-CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+#CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_USE_SESSIONS = False
 SESSION_COOKIE_SECURE = True  # Secure session handling
 
 ROOT_URLCONF = 'LangProject.urls'

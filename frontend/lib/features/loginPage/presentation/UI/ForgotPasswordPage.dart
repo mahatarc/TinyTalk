@@ -26,12 +26,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       isLoading = true;
       message = null;
     });
+
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.1.70:8000/api/password_reset/"), // URL for password reset request
-        headers: {"Content-Type": "application/json"},
+        Uri.parse("http://192.168.1.70:8000/api/password_reset/"),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: jsonEncode({"email": email}),
       );
+
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         setState(() {
@@ -75,9 +80,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               Text(
                 message!,
                 style: TextStyle(
-                    color: message!.contains("sent")
-                        ? Colors.green
-                        : Colors.red),
+                  color: message!.contains("sent") ? Colors.green : Colors.red),
               ),
             const SizedBox(height: 10),
             ElevatedButton(
