@@ -23,6 +23,8 @@ EMAIL_TIMEOUT = 10  # Prevent long waits
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default sender email
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
+PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_confirm.html'
+
 # Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 

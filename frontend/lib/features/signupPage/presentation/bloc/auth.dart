@@ -15,6 +15,7 @@ class SignupService {
           'username': username,
           'email': email,
           'password': password,
+          'verified': false, // Ensure the user is unverified initially
         }),
       ).timeout(Duration(seconds: 30));
 

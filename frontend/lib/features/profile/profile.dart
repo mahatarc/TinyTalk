@@ -1,10 +1,49 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
 
-class ProfilePage extends StatelessWidget {
-  final String name;
-  final String email;
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
 
-  const ProfilePage({super.key, required this.name, required this.email});
+class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String email = '';
+
+  // Fetch user profile from the backend
+  Future<void> fetchProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString("access_token");
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://192.168.1.5:8000/profile/'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      setState(() {
+        username = data['username'];
+        email = data['email'];
+      });
+    } else {
+      print('Failed to load profile');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +51,7 @@ class ProfilePage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('images/bg99.jpg'), // Background image
+            image: AssetImage('images/bg99.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -22,26 +61,27 @@ class ProfilePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 100),
-              // Profile Picture
               const CircleAvatar(
                 radius: 60,
                 backgroundImage: AssetImage('images/profile.png'),
                 backgroundColor: Colors.green,
               ),
               const SizedBox(height: 20),
-              // Name Field (Dynamic)
-              buildInfoContainer(name),
-              // Email Field (Dynamic)
+              buildInfoContainer(username),
               buildInfoContainer(email),
-              // Score (Static for now, make dynamic later)
               buildInfoContainer("Score: 150 Points"),
               const SizedBox(height: 10),
-              // Logout Button
               ElevatedButton(
-                onPressed: () {
-                  // Add logout functionality here
-                  print("Logged out");
-                  Navigator.pop(context); // Navigate back to login
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.remove("access_token"); // Logout action
+                  Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage(
+
+                              )),
+                            );
+          
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -59,7 +99,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // Reusable Widget for Info Containers
   Widget buildInfoContainer(String text) {
     return Container(
       width: double.infinity,

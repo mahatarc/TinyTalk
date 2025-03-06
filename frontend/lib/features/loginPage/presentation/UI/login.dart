@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart';
+import 'package:tiny_talks/features/loginPage/presentation/UI/ForgotPasswordPage.dart';
 import 'package:tiny_talks/features/signupPage/presentation/UI/signupPage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isPasswordVisible = false; // Track password visibility
   bool isLoading = false;
   String? errorMessage;
 
@@ -58,6 +60,10 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
+      // Debugging: Print response body and status code
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -87,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         errorMessage = "Something went wrong. Please try again.";
       });
+        print('Error: $e');
     } finally {
       setState(() {
         isLoading = false;
@@ -151,12 +158,24 @@ class _LoginPageState extends State<LoginPage> {
                         fillColor: Colors.white.withOpacity(0.8),
                         hintText: 'Password',
                         prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPasswordVisible = !isPasswordVisible;
+                            });
+                          },
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      obscureText: true,
+                      //obscureText: true,
+                      obscureText: !isPasswordVisible, // Toggle password visibility
                     ),
                     const SizedBox(height: 10),
                     if (errorMessage != null)
@@ -166,23 +185,55 @@ class _LoginPageState extends State<LoginPage> {
                         style: const TextStyle(color: Colors.red),
                       ),
                     const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: isLoading ? null : login,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        backgroundColor: Colors.brown[500],
-                      ),
-                      child: isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Login',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
-                            ),
-                    ),
+                   ElevatedButton(
+  onPressed: isLoading
+      ? null
+      : () async {
+          await login();
+          if (errorMessage == null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          }
+        },
+  style: ElevatedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
+    backgroundColor: Colors.brown[500],
+  ),
+  child: isLoading
+      ? const CircularProgressIndicator(color: Colors.white)
+      : const Text(
+          'Login',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        ),
+),
+
                     const SizedBox(height: 20),
+                    //Forgot Password
+  TextButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+    );
+  },
+  child: const Text(
+    'Forgot Password?',
+    style: TextStyle(color: Colors.white),
+  ),
+),
+
+                  const SizedBox(height: 10),
+
+                  // Sign up option
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

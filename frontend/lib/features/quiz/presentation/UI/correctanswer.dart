@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 
 class CorrectAnswer extends StatefulWidget {
-  const CorrectAnswer({super.key});
-
   @override
   _CorrectAnswerState createState() => _CorrectAnswerState();
 }
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
-  // Quiz data: List of questions with images, correct answers, and options
   final List<Map<String, dynamic>> questions = [
     {
       'image': 'images/apple.png',
@@ -19,33 +16,30 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     {
       'image': 'images/elephant.png',
       'question': 'Identify from the picture:',
-      'options': ['भाघ', 'हात्ती', 'कुकुर', 'गाई'],
+      'options': ['बाघ', 'हात्ती', 'कुकुर', 'गाई'],
       'answer': 'हात्ती',
     },
     {
       'image': 'images/vegetables.png',
       'question': 'Identify from the picture:',
-      'options': [ 'फलफुल', 'तरकारी','भात', 'बर्गर'],
+      'options': ['फलफुल', 'तरकारी', 'भात', 'बर्गर'],
       'answer': 'तरकारी',
     },
     {
       'image': 'images/mother.png',
       'question': 'Identify from the picture:',
       'options': ['बुवा', 'दाइ', 'बहिनी', 'आमा'],
-     'answer': 'आमा',
+      'answer': 'आमा',
     },
-    // Add more questions as needed
   ];
 
-  int currentQuestion = 0; // To track the current question
-  int score = 0; // To track the score
-  bool isAnswered = false; // To check if the current question is answered
-  String selectedOption = ''; // To track the selected option
+  int currentQuestion = 0;
+  int score = 0;
+  bool isAnswered = false;
+  String selectedOption = '';
 
-  // Method to check the answer
   void checkAnswer(String selected) {
     if (isAnswered) return;
-
     setState(() {
       selectedOption = selected;
       isAnswered = true;
@@ -55,7 +49,6 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     });
   }
 
-  // Method to go to the next question
   void nextQuestion() {
     if (currentQuestion < questions.length - 1) {
       setState(() {
@@ -64,12 +57,10 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
         selectedOption = '';
       });
     } else {
-      // Show score after the last question
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              ResultScreen(score: score, total: questions.length),
+          builder: (context) => ResultScreen(score: score, total: questions.length),
         ),
       );
     }
@@ -80,30 +71,37 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     final question = questions[currentQuestion];
     return Scaffold(
       appBar: AppBar(
-        
-        backgroundColor: Colors.orange.shade100,
+        backgroundColor: const Color.fromARGB(255, 116, 233, 98),
+        elevation: 0,
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
-        color: Colors.orange.shade100,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/bg2.jpg'),
+            fit: BoxFit.fill,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Display image
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color.fromARGB(255, 168, 165, 0), width: 4),
-              ),
-              child: Image.asset(
-                question['image'],
-                fit: BoxFit.contain,
-              ),
+            Column(
+              children: [
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color.fromARGB(255, 168, 165, 0), width: 4),
+                  ),
+                  child: Image.asset(
+                    question['image'],
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            // Display question
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -122,7 +120,6 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
               ),
             ),
             const SizedBox(height: 10),
-            // Display options
             Expanded(
               child: ListView.builder(
                 itemCount: question['options'].length,
@@ -164,19 +161,28 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
               ),
             ),
             const SizedBox(height: 16),
-            // Next button
-            ElevatedButton(
-              onPressed: nextQuestion,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                image: DecorationImage(
+                  image: AssetImage('images/h1.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: const Text(
-                'Next',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              child: ElevatedButton(
+                onPressed: nextQuestion,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  shadowColor: Colors.transparent,
+                ),
+                child: const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -186,35 +192,51 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   }
 }
 
-// Result screen to display total score
 class ResultScreen extends StatelessWidget {
   final int score;
   final int total;
 
-  const ResultScreen({super.key, required this.score, required this.total});
+  ResultScreen({required this.score, required this.total});
 
- @override
+  int calculateCoins() {
+    switch (score) {
+      case 1:
+        return 10;
+      case 2:
+        return 20;
+      case 3:
+        return 30;
+      case 4:
+        return 40;
+      default:
+        return 0;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    int coins = calculateCoins();
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Result'),
-        backgroundColor: const Color.fromARGB(255, 130, 17, 156),
+        backgroundColor: const Color.fromARGB(255, 128, 191, 125),
+        elevation: 0,
       ),
       body: Container(
-        // Use a BoxDecoration with an image as the background
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('images/cong.png'), // Replace with your image path
-            fit: BoxFit.cover, // Make sure the image covers the whole background
+            image: AssetImage('images/cong.png'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8), // Semi-transparent background to make text stand out
+              color: Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color.fromARGB(255, 154, 37, 204), width: 4),
+              border: Border.all(color: const Color.fromARGB(255, 128, 191, 125), width: 4),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -224,14 +246,23 @@ class ResultScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: Color.fromARGB(255, 27, 215, 71),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'You got $coins coins!',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Reset and go back to the quiz screen from the beginning
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => CorrectAnswer()),
@@ -239,7 +270,7 @@ class ResultScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    backgroundColor: const Color.fromARGB(255, 187, 133, 207),
+                    backgroundColor: const Color.fromARGB(255, 133, 207, 153),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

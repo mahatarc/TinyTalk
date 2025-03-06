@@ -12,15 +12,30 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from rest_framework.permissions import AllowAny, IsAuthenticated  # Added IsAuthenticated import
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpResponse
 from rest_framework_simplejwt.tokens import UntypedToken
+from .serializers import ForgotPasswordSerializer
+from django.contrib.auth.forms import SetPasswordForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import update_session_auth_hash
+from django.views import View  # Import View class
+import logging
+from rest_framework.decorators import api_view, permission_classes
 
 
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    return Response({
+        'username': user.username,
+        'email': user.email,
+    })
 
 # Function to generate JWT tokens for a user
 def get_tokens_for_user(user):
@@ -40,7 +55,10 @@ class SignupAPIView(APIView):
 
         if not username or not email or not password:
             return Response({"error": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
-
+        # Check if the email already exists
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "Email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
+            
         # Create user but keep inactive
         user = User.objects.create_user(username=username, email=email, password=password)
         user.is_active = False  # Set the user as inactive until email is verified
@@ -84,15 +102,13 @@ class LoginAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-
-
 class ProtectedAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Only authenticated users can access
 
     def get(self, request):
         # Token validation (optional, in case you want to manually validate)
         token = request.headers.get('Authorization', '').split(' ')[1]
-                # Retrieve token from request headers
+        # Retrieve token from request headers
         auth_header = request.headers.get('Authorization')
         if not auth_header or ' ' not in auth_header:
             raise AuthenticationFailed("Missing or invalid Authorization header")
@@ -106,7 +122,6 @@ class ProtectedAPIView(APIView):
             raise AuthenticationFailed("Invalid token. Please log in again.")
 
         return Response({"message": "You are authenticated!.............................."})
-        return Response({"message": "You are authenticated!"}, status=status.HTTP_200_OK)
 
 
 class VerifyEmailAPIView(APIView):
@@ -123,3 +138,67 @@ class VerifyEmailAPIView(APIView):
             return JsonResponse({"message": "Email verified successfully!"}, status=200)
         else:
             return JsonResponse({"error": "Invalid token."}, status=400)
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return JsonResponse({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            # Create a password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(str(user.pk).encode())
+            domain = get_current_site(request).domain
+            link = f'http://{domain}/reset_password/{uid}/{token}/'
+            # Render the password reset email template
+            subject = 'Reset Your Password'
+            message = f'Click the following link to reset your password: {link}'
+            # Send the password reset email
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+            return JsonResponse({"message": "Password reset email sent!"}, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Set up logging to capture form data and errors
+logger = logging.getLogger(__name__)
+
+class PasswordResetConfirmView(View):
+    def get(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return JsonResponse({"message": "Invalid or expired link."}, status=400)
+        
+        # Token validation is done later on POST request
+        return render(request, 'password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return JsonResponse({"message": "Invalid or expired link."}, status=400)
+
+        if not default_token_generator.check_token(user, token):
+            return JsonResponse({"message": "Invalid or expired link."}, status=400)
+
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Check if the passwords match
+        if new_password != confirm_password:
+            return JsonResponse({"message": "Passwords do not match."}, status=400)
+
+        # Set the new password for the user
+        user.set_password(new_password)
+        user.save()
+
+        return JsonResponse({"message": "Password has been reset successfully."}, status=200)
+
+
+
