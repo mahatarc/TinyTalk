@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart'; 
+//import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -24,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.5:8000/profile/'),
+      Uri.parse('http://192.168.1.70:8000/profile/'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
 
@@ -48,11 +50,27 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/bg99.jpg'),
-            fit: BoxFit.cover,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, // Make AppBar transparent
+        elevation: 0, // Remove shadow
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),// Navigate to HomePage
+            );
+          },
+        ),
+      ),
+      extendBodyBehindAppBar: true,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity, // Ensure the container takes up the full screen
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/bg99.jpg'),
+              fit: BoxFit.cover,
           ),
         ),
         child: Center(
@@ -75,13 +93,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.remove("access_token"); // Logout action
-                  Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => LoginPage(
-
-                              )),
-                            );
-          
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -118,4 +133,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-}
+} 

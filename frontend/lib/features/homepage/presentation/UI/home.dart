@@ -3,6 +3,8 @@ import 'package:flutter/services.dart'; // Import the package to lock orientatio
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
+import 'package:tiny_talks/features/profile/profile.dart';
+
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -47,7 +49,10 @@ class Home extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // Add action for profile icon
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProfilePage()),
+                          );
                         print("Profile icon tapped");
                       },
                       child: Image.asset(
