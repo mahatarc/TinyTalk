@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
   String? errorMessage;
 
-  final String apiUrl = "http://192.168.1.5:8000/api/login/";
+  final String apiUrl = "http://192.168.1.2:8000/api/login/";
 
   @override
   void initState() {
@@ -184,6 +184,12 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         },
+  //  onPressed: () {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => HomeScreen()),
+  //   );
+  // },
   style: ElevatedButton.styleFrom(
     padding: const EdgeInsets.symmetric(vertical: 16),
     shape: RoundedRectangleBorder(
@@ -232,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const Signup()),
+                              MaterialPageRoute(builder: (context) =>  Signup()),
                             );
                           },
                           child: const Text(

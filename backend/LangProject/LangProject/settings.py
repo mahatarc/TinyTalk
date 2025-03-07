@@ -39,7 +39,7 @@ else:
 # Security and Debugging
 SECRET_KEY = config.get("SECRET_KEY", "fallback-secret-key")
 DEBUG = config.get("DEBUG", True)
-ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
+ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost","192.168.1.2"])
 
 # Installed Applications
 INSTALLED_APPS = [
@@ -70,8 +70,8 @@ MIDDLEWARE = [
 # CORS and CSRF Security
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
-    'http://192.168.1.9:8000',
-    'http://192.168.1.7:8000'
+    'http://10.10.11.100:8000',
+    'http://192.168.1.2:8000'
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
@@ -103,12 +103,12 @@ WSGI_APPLICATION = 'LangProject.wsgi.application'
 # Database Configuration
 DATABASES = {
     'default': {
-        'NAME': config.get('DB_NAME'),
-        'HOST': config.get('DB_HOST'),
-        'USER': config.get('DB_USER'),
-        'PASSWORD': config.get('DB_PASSWORD'),
-
- 
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config.get("DB_NAME"),
+        'USER': config.get("DB_USER"),
+        'PASSWORD': config.get("DB_PASSWORD"),
+        'HOST': config.get("DB_HOST"),
+        'PORT': '3306',
     }
 }
 
@@ -155,4 +155,3 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
-
