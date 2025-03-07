@@ -17,13 +17,15 @@ class Question(models.Model):
         return self.question_text
 
 class UserProgress(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  
-    last_difficulty = models.CharField(choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], max_length=10, default='medium')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_difficulty = models.CharField(choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], max_length=10, default='easy')
     correct_answers = models.IntegerField(default=0)
     incorrect_answers = models.IntegerField(default=0)
     total_answers = models.IntegerField(default=0)
-    score = models.IntegerField(default=0)
+    latest_score = models.IntegerField(default=0)
+    correct_questions = models.ManyToManyField(Question, related_name='correct_answers')
 
+    incorrect_questions = models.ManyToManyField(Question, related_name='incorrect_answers', blank=True)
 
     def __str__(self):
-        return f"{self.user.username}'s Progress"
+        return f"{self.user.username} - Score: {self.latest_score}"
