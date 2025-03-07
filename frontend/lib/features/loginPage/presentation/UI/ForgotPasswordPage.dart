@@ -28,7 +28,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     });
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.1.5:8000/api/password_reset/"), // URL for password reset request
+        Uri.parse("http://192.168.1.2:8000/api/password_reset/"), // URL for password reset request
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"email": email}),
       );

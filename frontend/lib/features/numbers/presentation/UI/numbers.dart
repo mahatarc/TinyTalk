@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
-
 class Numbers extends StatefulWidget {
   const Numbers({super.key});
 
@@ -16,7 +15,6 @@ class Numbers extends StatefulWidget {
 }
 
 class _NumbersState extends State<Numbers> {
-
   final List<String> _numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   final List<String> _backgroundImages = [
     'images/0.png', 'images/1.png', 'images/2.png', 'images/3.png',
@@ -47,8 +45,8 @@ class _NumbersState extends State<Numbers> {
     }
   }
 
-  // Function to play the corresponding audio
-void _playAudio() async {
+  // Updated _playSound method with the correct path
+  void _playAudio() async {
   // Ensure you're using the correct method to load the audio file
   await _audioPlayer.setSource(AssetSource('audio/${_numbers[_currentNumberIndex]}.wav'));
   await _audioPlayer.resume(); // Play the audio
@@ -119,7 +117,8 @@ Future<void> _stopRecording() async {
 
 
 Future<void> _evaluateSpeech(File audioFile) async {
-  const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech/";
+ // const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech/";
+  const String apiUrl = "http://192.168.1.2:8000/api/deploy/evaluate_speech/";
 
   try {
     // Prepare the multipart request
@@ -143,6 +142,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
        double accuracy = (result['accuracy'] is int)
       ? (result['accuracy'] as int).toDouble()
       : result['accuracy'];
+        _showResultDialog(accuracy);
       // _showResultDialog(result['accuracy']);
     } else {
       print("Error: ${response.statusCode}");
@@ -161,20 +161,25 @@ Future<void> _evaluateSpeech(File audioFile) async {
 
 
   void _showResultDialog(double accuracy) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Evaluation Result"),
-        content: Text("Correct pronunciation"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
-  }
+  String message = accuracy >= 0.8 
+      ? "Correct pronunciation" 
+      : "Incorrect pronunciation, try again";
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Evaluation Result"),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("OK"),
+        ),
+      ],
+    ),
+  );
+}
+
 
   void _nextNumber() {
     setState(() {
@@ -188,8 +193,6 @@ Future<void> _evaluateSpeech(File audioFile) async {
     _audioPlayer.dispose();
     super.dispose();
   }
-
- 
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +212,6 @@ Future<void> _evaluateSpeech(File audioFile) async {
           children: [
             Image.asset(
               _backgroundImages[_currentNumberIndex],
-
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
@@ -219,19 +221,17 @@ Future<void> _evaluateSpeech(File audioFile) async {
               left: 30.0,
               child: IconButton(
                 icon: const Icon(Icons.volume_up, size: 40.0),
-                onPressed: _playAudio, // Play the corresponding audio when volume button is pressed
+                onPressed: _playAudio, // Calls _playSound() when pressed
               ),
             ),
             Positioned(
               bottom: 200.0,
               child: GestureDetector(
-                onTap: () {
-                  // Removed recording toggle logic
-                },
+                onTap: _toggleRecording,
                 child: Icon(
                   Icons.mic,
                   size: 80.0,
-                  color: Colors.black, // Default mic color
+                  color: _isRecording ? Colors.red : Colors.black,
                 ),
               ),
             ),
