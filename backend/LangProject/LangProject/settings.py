@@ -71,7 +71,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
     'http://10.10.11.100:8000',
-    'http://192.168.1.2:8000'
+    'http://192.168.1.3:8000'
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
