@@ -55,8 +55,8 @@ class Home extends StatelessWidget {
                       },
                       child: Image.asset(
                         'images/profile.png', // Replace with your profile image path
-                        width: 90,
-                        height: 90, 
+                        width: 74,
+                        height: 100, 
                       ),
                     ),
                     const SizedBox(width: 16), 
