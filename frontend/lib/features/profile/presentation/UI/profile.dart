@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart'; 
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -48,11 +49,27 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/bg99.jpg'),
-            fit: BoxFit.cover,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, 
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          },
+        ),
+      ),
+      extendBodyBehindAppBar: true,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity, 
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/bg99.jpg'),
+              fit: BoxFit.cover,
           ),
         ),
         child: Center(
@@ -75,13 +92,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.remove("access_token"); // Logout action
-                  Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => LoginPage(
-
-                              )),
-                            );
-          
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (route) => false, // Remove all routes from the stack
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

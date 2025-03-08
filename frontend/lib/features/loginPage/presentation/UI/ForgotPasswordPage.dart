@@ -26,12 +26,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       isLoading = true;
       message = null;
     });
+
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.1.5:8000/api/password_reset/"), // URL for password reset request
-        headers: {"Content-Type": "application/json"},
+        Uri.parse("http://192.168.1.5:8000/api/password_reset/"),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: jsonEncode({"email": email}),
       );
+
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         setState(() {
@@ -56,37 +61,72 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Forgot Password")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: "Enter your email",
-                border: OutlineInputBorder(),
+      appBar: AppBar(
+        title: const Text(
+          "Forgot Password",
+          style: TextStyle(
+            color: Colors.black, // Brown color for the title text
+          ),
+        ),
+        backgroundColor: Colors.transparent, // Transparent AppBar
+        elevation: 0, // Remove shadow
+        iconTheme: IconThemeData(
+          color: Colors.black, // Set the back arrow color to black
+        ),
+      ),
+      extendBodyBehindAppBar: true, // Allow body to extend behind AppBar
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/logbg.png'), // Background image
+            fit: BoxFit.cover, // Cover the screen with the background
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Email TextField
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: "Enter your email",
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white70, // Slightly transparent white background
+                ),
+                keyboardType: TextInputType.emailAddress,
               ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 20),
-            if (message != null)
-              Text(
-                message!,
-                style: TextStyle(
-                    color: message!.contains("sent")
-                        ? Colors.green
-                        : Colors.red),
+              const SizedBox(height: 20),
+
+              // Message display
+              if (message != null)
+                Text(
+                  message!,
+                  style: TextStyle(
+                    color: message!.contains("sent") ? Colors.green : Colors.red,
+                  ),
+                ),
+              const SizedBox(height: 10),
+
+              // Send Reset Email button
+              ElevatedButton(
+                onPressed: isLoading ? null : sendResetRequest,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown, // Button background color
+                  foregroundColor: Colors.green, // Text color
+                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text("Send Reset Email"),
               ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: isLoading ? null : sendResetRequest,
-              child: isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text("Send Reset Email"),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

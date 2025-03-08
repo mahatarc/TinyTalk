@@ -7,24 +7,20 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpResponse
 from rest_framework_simplejwt.tokens import UntypedToken
-from .serializers import ForgotPasswordSerializer
-from django.contrib.auth.forms import SetPasswordForm
-from django.shortcuts import render, redirect
-from django.contrib.auth import update_session_auth_hash
-from django.views import View  # Import View class
+from .serializers import ForgotPasswordSerializer, QuestionSerializer
+from django.shortcuts import render
+from django.views import View  
 import logging
 from rest_framework.decorators import api_view, permission_classes
-
-
+from .models import Question, UserProgress  
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
 
@@ -36,6 +32,7 @@ def user_profile(request):
         'username': user.username,
         'email': user.email,
     })
+
 
 # Function to generate JWT tokens for a user
 def get_tokens_for_user(user):
@@ -56,13 +53,11 @@ class SignupAPIView(APIView):
         if not username or not email or not password:
             return Response({"error": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create user but keep inactive
         user = User.objects.create_user(username=username, email=email, password=password)
         user.is_active = False  # Set the user as inactive until email is verified
         user.save()
 
-        # Send verification email
-        token = default_token_generator.make_token(user)  # Use default_token_generator here
+        token = default_token_generator.make_token(user)  
         uid = urlsafe_base64_encode(str(user.pk).encode())
         domain = get_current_site(request).domain
         link = f'http://{domain}/verify_email/{uid}/{token}/'
@@ -80,17 +75,15 @@ class LoginAPIView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        # Authenticate user with provided credentials
         user = authenticate(username=username, password=password)
 
         if user is None:
             raise AuthenticationFailed("Invalid username or password")
 
-        # Check if the user's email is verified (is_active must be True)
         if not user.is_active:
             raise AuthenticationFailed("Please verify your email address first.")
 
-        # If email is verified, generate tokens and return them
+        # Generate JWT tokens
         tokens = get_tokens_for_user(user)
 
         return Response({
@@ -98,27 +91,23 @@ class LoginAPIView(APIView):
             "tokens": tokens
         }, status=status.HTTP_200_OK)
 
-
 class ProtectedAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Only authenticated users can access
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request):
-        # Token validation (optional, in case you want to manually validate)
-        token = request.headers.get('Authorization', '').split(' ')[1]
-        # Retrieve token from request headers
+        # Token validation
         auth_header = request.headers.get('Authorization')
         if not auth_header or ' ' not in auth_header:
             raise AuthenticationFailed("Missing or invalid Authorization header")
+        
+        token = auth_header.split(' ')[1]
         try:
-            UntypedToken(token)  # Manually decode the token
-        except Exception as e:
-            raise AuthenticationFailed('...............................Invalid token.....................................')
-            token = auth_header.split(' ')[1]  # Extract token
-            UntypedToken(token)  # Validate token
+            UntypedToken(token)
         except Exception:
             raise AuthenticationFailed("Invalid token. Please log in again.")
 
-        return Response({"message": "You are authenticated!.............................."})
+        return Response({"message": "You are authenticated!"})
+
 
 
 class VerifyEmailAPIView(APIView):
@@ -146,21 +135,17 @@ class ForgotPasswordView(APIView):
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
                 return JsonResponse({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-            # Create a password reset token
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(str(user.pk).encode())
             domain = get_current_site(request).domain
             link = f'http://{domain}/reset_password/{uid}/{token}/'
-            # Render the password reset email template
             subject = 'Reset Your Password'
             message = f'Click the following link to reset your password: {link}'
-            # Send the password reset email
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
             return JsonResponse({"message": "Password reset email sent!"}, status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Set up logging to capture form data and errors
 logger = logging.getLogger(__name__)
 
 class PasswordResetConfirmView(View):
@@ -171,7 +156,6 @@ class PasswordResetConfirmView(View):
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return JsonResponse({"message": "Invalid or expired link."}, status=400)
         
-        # Token validation is done later on POST request
         return render(request, 'password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
 
     def post(self, request, uidb64, token):
@@ -187,12 +171,113 @@ class PasswordResetConfirmView(View):
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
 
-        # Check if the passwords match
         if new_password != confirm_password:
             return JsonResponse({"message": "Passwords do not match."}, status=400)
 
-        # Set the new password for the user
         user.set_password(new_password)
         user.save()
 
         return JsonResponse({"message": "Password has been reset successfully."}, status=200)
+
+
+class AdaptiveQuizAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_progress, _ = UserProgress.objects.get_or_create(user=user)
+
+        last_difficulty = user_progress.last_difficulty
+
+        questions = Question.objects.filter(difficulty=last_difficulty)
+
+        correctly_answered_questions = user_progress.correct_questions.filter(difficulty=last_difficulty)
+
+        if correctly_answered_questions.count() == questions.count() and questions.count() > 0:
+            next_difficulty = self.get_next_difficulty(last_difficulty)
+            user_progress.last_difficulty = next_difficulty
+            user_progress.save()
+            return Response({
+                "message": "Congratulations! You have completed all questions at this difficulty.",
+                "next_difficulty": next_difficulty
+            })
+
+        unanswered_questions = questions.exclude(id__in=user_progress.correct_questions.values_list('id', flat=True))
+
+        if not unanswered_questions.exists():
+            return Response({"message": "No more questions available for this difficulty."}, status=404)
+
+        # Pick a random unanswered question
+        question = unanswered_questions.order_by('?').first()
+
+        # Ensure to include image and audio (if present) in the serialized response
+        serializer = QuestionSerializer(question)
+        return Response(serializer.data)
+
+    def get_next_difficulty(self, current_difficulty):
+        difficulty_order = ['easy', 'medium', 'hard']
+        current_index = difficulty_order.index(current_difficulty)
+        return difficulty_order[min(current_index + 1, len(difficulty_order) - 1)]
+
+class AnswerQuizAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        question_id = request.data.get('question_id')
+        user_answer = request.data.get('answer')
+
+        if not question_id or not user_answer:
+            return Response({"error": "Missing question ID or answer"}, status=400)
+
+        question = get_object_or_404(Question, id=question_id)
+        user = request.user
+        user_progress, _ = UserProgress.objects.get_or_create(user=user)
+
+        correct = user_answer.strip().lower() == question.answer.strip().lower()
+
+        if correct:
+            # Avoid duplicate entries
+            if not user_progress.correct_questions.filter(id=question.id).exists():
+                user_progress.correct_answers += 1
+                user_progress.correct_questions.add(question)
+
+                # Add 10 points for correct answer
+                user_progress.latest_score += 10
+        else:
+            if not user_progress.incorrect_questions.filter(id=question.id).exists():
+                user_progress.incorrect_answers += 1
+                user_progress.incorrect_questions.add(question)
+
+        user_progress.total_answers += 1
+        user_progress.save()
+
+        # Return the updated score, current difficulty, and the question's image/audio info
+        return Response({
+            "message": "Correct!" if correct else "Incorrect.",
+            "correct_answer": question.answer,
+            "current_difficulty": user_progress.last_difficulty,
+            "latest_score": user_progress.latest_score,  # Return updated score
+            "question_data": {
+                "image": question.image,
+                "audio": question.audio,
+                "question_text": question.question_text,
+                "options": question.options,
+            }
+        })
+
+
+class UserProgressAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_progress, _ = UserProgress.objects.get_or_create(user=user)
+
+        return Response({
+            "latest_score": user_progress.latest_score,
+            "correct_answers": user_progress.correct_answers,
+            "incorrect_answers": user_progress.incorrect_answers,
+            "total_answers": user_progress.total_answers,
+            "last_difficulty": user_progress.last_difficulty
+        })
+
