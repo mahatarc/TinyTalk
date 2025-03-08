@@ -18,10 +18,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isPasswordVisible = false; // Track password visibility
   bool isLoading = false;
   String? errorMessage;
 
-  final String apiUrl = "http://192.168.1.5:8000/api/login/";
+  final String apiUrl = "http://192.168.1.70:8000/api/login/";
 
   @override
   void initState() {
@@ -31,6 +32,13 @@ class _LoginPageState extends State<LoginPage> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Preload background image after dependencies are initialized
+    precacheImage(const AssetImage('images/logbg.png'), context);
   }
 
   Future<void> login() async {
@@ -157,12 +165,24 @@ class _LoginPageState extends State<LoginPage> {
                         fillColor: Colors.white.withOpacity(0.8),
                         hintText: 'Password',
                         prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPasswordVisible = !isPasswordVisible;
+                            });
+                          },
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      obscureText: true,
+                      //obscureText: true,
+                      obscureText: !isPasswordVisible, // Toggle password visibility
                     ),
                     const SizedBox(height: 10),
                     if (errorMessage != null)
@@ -184,12 +204,6 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         },
-  //  onPressed: () {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => HomeScreen()),
-  //   );
-  // },
   style: ElevatedButton.styleFrom(
     padding: const EdgeInsets.symmetric(vertical: 16),
     shape: RoundedRectangleBorder(
@@ -238,13 +252,13 @@ class _LoginPageState extends State<LoginPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) =>  Signup()),
+                              MaterialPageRoute(builder: (context) => const Signup()),
                             );
                           },
                           child: const Text(
                             'Sign Up',
                             style: TextStyle(
-                              color: Colors.green,
+                              color: Color.fromARGB(255, 122, 73, 55),
                               fontWeight: FontWeight.bold,
                             ),
                           ),

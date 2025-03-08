@@ -167,16 +167,53 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+       return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          contentPadding: EdgeInsets.zero, 
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Congratulations!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 60, 
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 124, 151, 119),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                    ),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: Colors.white, 
+                    radius: 35,
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage('images/cong.png'), 
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 10),
-              Text("Your total score: $score\nProceed to the next level.",
-                  textAlign: TextAlign.center, style: TextStyle(fontSize: 18)),
+
+              Text(
+                "Congratulations!",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
+                  style: TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               SizedBox(height: 20),
+
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -185,6 +222,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 },
                 child: Text("Proceed", style: TextStyle(fontSize: 18)),
               ),
+              SizedBox(height: 10),
             ],
           ),
         );
@@ -247,23 +285,37 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text("Quiz Game")),
+      appBar: AppBar(backgroundColor: Colors.transparent, ),
+          extendBodyBehindAppBar: true,
       body: Container(
+          width: double.infinity,
+        height: double.infinity,
+
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (question?['image'] != null)
-              GestureDetector(
-                onTap: _playAudio,
-                child: Image.asset(audioImage, height: 200),
-              ),
-            SizedBox(height: 16),
-            Text(question?['question_text'] ?? 'No question', style: TextStyle(fontSize: 24)),
-            SizedBox(height: 20),
-            if (question?['options'] != null)
-              ...question!['options'].map<Widget>((opt) => _buildOption(opt)).toList(),
-            if (isAnswered) ElevatedButton(onPressed: nextQuestion, child: Text("Next")),
-          ],
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/quizbg.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+
+        child: Padding(
+                  padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              if (question?['image'] != null)
+                GestureDetector(
+                  onTap: _playAudio,
+                  child: Image.asset(audioImage, height: 200),
+                ),
+              SizedBox(height: 16),
+              Text(question?['question_text'] ?? 'No question', style: TextStyle(fontSize: 24)),
+              SizedBox(height: 20),
+              if (question?['options'] != null)
+                ...question!['options'].map<Widget>((opt) => _buildOption(opt)).toList(),
+              if (isAnswered) ElevatedButton(onPressed: nextQuestion, child: Text("Next")),
+            ],
+          ),
         ),
       ),
     );
