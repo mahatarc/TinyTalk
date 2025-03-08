@@ -68,18 +68,26 @@ MIDDLEWARE = [
 ]
 
 # CORS and CSRF Security
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.70:8000'  # Allow backend host
+    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
+]
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
     'http://192.168.1.9:8000',
     'http://192.168.1.7:8000',
     'http://172.16.11.199:8000',
     'http://172.16.11.29:8000'
+    'http://192.168.1.70:8000'
+
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
-CSRF_COOKIE_SECURE = False  # Set to True for production with HTTPS
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_NAME = 'csrftoken'
+#CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_USE_SESSIONS = False
 SESSION_COOKIE_SECURE = True  # Secure session handling
 
 ROOT_URLCONF = 'LangProject.urls'
@@ -87,7 +95,7 @@ ROOT_URLCONF = 'LangProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -110,6 +118,7 @@ DATABASES = {
         'HOST': config.get('DB_HOST'),
         'USER': config.get('DB_USER'),
         'PASSWORD': config.get('DB_PASSWORD'),
+
     }
 }
 
@@ -156,4 +165,3 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
-
