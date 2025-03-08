@@ -34,6 +34,13 @@ class _LoginPageState extends State<LoginPage> {
     ]);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Preload background image after dependencies are initialized
+    precacheImage(const AssetImage('images/logbg.png'), context);
+  }
+
   Future<void> login() async {
     final String username = usernameController.text.trim();
     final String password = passwordController.text.trim();
@@ -104,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
