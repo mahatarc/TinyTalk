@@ -93,9 +93,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.remove("access_token"); // Logout action
-                  Navigator.pushReplacement(
+                  Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => LoginPage()),
+                    (route) => false, // Remove all routes from the stack
                   );
                 },
                 style: ElevatedButton.styleFrom(
