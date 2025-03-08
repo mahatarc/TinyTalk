@@ -12,7 +12,7 @@ class CorrectAnswer extends StatefulWidget {
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
   Map<String, dynamic>? question;
-  int score = 0;
+  int score = 0;  // Score will now persist
   bool isAnswered = false;
   String selectedOption = '';
   String currentDifficulty = 'easy';
@@ -29,6 +29,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     super.initState();
     _audioPlayer = AudioPlayer();
     _initializeDifficulty();
+    _loadScore();
     fetchQuestion();
   }
 
@@ -36,6 +37,18 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     currentDifficulty = prefs.getString('difficulty') ?? 'easy';
     prefs.setString('difficulty', currentDifficulty);
+  }
+
+  Future<void> _loadScore() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      score = prefs.getInt('quiz_score') ?? 0;  // Load saved score
+    });
+  }
+
+  Future<void> _saveScore() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('quiz_score', score);  // Save the updated score
   }
 
   Future<void> fetchQuestion() async {
@@ -64,11 +77,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             selectedOption = '';
             totalQuestions++;
 
-            // Set the audio URL and image from the database response
             audioUrl = question?['audio'] ?? ''; 
             audioImage = question?['image'] ?? ''; 
-            print("Fetched audio URL: $audioUrl"); 
-            print("Fetched audio image: $audioImage"); 
           });
         } else {
           _showLevelClearedMessage();
@@ -101,6 +111,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
         score += 10;
         correctAnswers++;
       });
+      _saveScore();  // Save the updated score
     }
 
     try {
@@ -157,52 +168,15 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          contentPadding: EdgeInsets.zero, 
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 60, 
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 124, 151, 119),
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-                    ),
-                  ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white, 
-                    radius: 35,
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundImage: AssetImage('images/cong.png'), 
-                    ),
-                  ),
-                ],
-              ),
+              Text("Congratulations!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               SizedBox(height: 10),
-
-              Text(
-                "Congratulations!",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Text(
-                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
-                  style: TextStyle(fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              Text("Your total score: $score\nProceed to the next level.",
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 18)),
               SizedBox(height: 20),
-
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -211,7 +185,6 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 },
                 child: Text("Proceed", style: TextStyle(fontSize: 18)),
               ),
-              SizedBox(height: 10),
             ],
           ),
         );
@@ -224,7 +197,6 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       correctAnswers = 0;
       questionIndex = 0;
       levelCleared = false;
-      currentDifficulty = 'medium';
     });
   }
 
@@ -250,10 +222,6 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
         decoration: BoxDecoration(
           color: optionColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isAnswered && isCorrect ? Colors.green : Colors.deepPurple,
-            width: 2,
-          ),
         ),
         child: Text(
           option,
@@ -264,9 +232,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     );
   }
 
-  // Function to play audio when the image is clicked
   void _playAudio() async {
-    print("Audio URL: $audioUrl"); 
     if (audioUrl.isNotEmpty) {
       await _audioPlayer.play(AssetSource(audioUrl));
     } else {
@@ -277,91 +243,26 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   @override
   Widget build(BuildContext context) {
     if (question == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Loading...")),
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(appBar: AppBar(title: const Text("Loading...")), body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, // Transparent AppBar
-        elevation: 0,       ),
-      extendBodyBehindAppBar: true,
+      appBar: AppBar(title: Text("Quiz Game")),
       body: Container(
-          width: double.infinity,
-        height: double.infinity,
-
         padding: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/quizbg.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Check if 'image' exists and is a string before rendering
-              if (question != null && question!['image'] != null && question!['image'] is String)
-               const SizedBox(height: 70),
-                 GestureDetector(
-                  onTap: _playAudio, // Play audio when the image is tapped
-                  child: Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(audioImage),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 16),
-              Text(
-                question?['question_text'] ?? 'Question not available',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              if (question?['options'] != null && question?['options'] is List)
-                ...List.generate(
-                  question!['options'].length,
-                  (index) => _buildOption(question!['options'][index]),
-                ),
-              const SizedBox(height: 20),
-              if (isAnswered)
-                ElevatedButton(
-                  onPressed: nextQuestion,
-                  child: Text("Next", style: TextStyle(fontSize: 18)),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ResultScreen extends StatelessWidget {
-  final int total;
-
-  const ResultScreen({Key? key, required this.total}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Quiz Result")),
-      body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'You got $total questions right!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+            if (question?['image'] != null)
+              GestureDetector(
+                onTap: _playAudio,
+                child: Image.asset(audioImage, height: 200),
+              ),
+            SizedBox(height: 16),
+            Text(question?['question_text'] ?? 'No question', style: TextStyle(fontSize: 24)),
+            SizedBox(height: 20),
+            if (question?['options'] != null)
+              ...question!['options'].map<Widget>((opt) => _buildOption(opt)).toList(),
+            if (isAnswered) ElevatedButton(onPressed: nextQuestion, child: Text("Next")),
           ],
         ),
       ),
