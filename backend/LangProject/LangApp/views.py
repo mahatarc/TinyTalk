@@ -132,7 +132,6 @@ class ProtectedAPIView(APIView):
 
         return Response({"message": "You are authenticated!.............................."})
 
-
 class VerifyEmailAPIView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -144,10 +143,11 @@ class VerifyEmailAPIView(APIView):
         if default_token_generator.check_token(user, token):
             user.is_active = True  # Mark the user as active after successful verification
             user.save()
-            return JsonResponse({"message": "Email verified successfully!"}, status=200)
+
+            # Render the verification_success.html template
+            return render(request, 'verification_success.html')
         else:
             return JsonResponse({"error": "Invalid token."}, status=400)
-
 
 class ForgotPasswordView(APIView):
 
