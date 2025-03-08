@@ -33,9 +33,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
       precacheImage(const AssetImage("images/Welcome2.png"), context);
       precacheImage(const AssetImage("images/play3.png"), context);
       precacheImage(const AssetImage("images/learn.png"), context);
-
-            // Precache LoginPage assets
-    precacheImage(AssetImage("images/logbg.png"), context);
     });
   }
 
@@ -111,10 +108,8 @@ PageRouteBuilder _fadeRoute(Widget page) {
         child: child,
       );
     },
-    opaque: false,  // Set opaque to false to ensure smooth background transition
-    barrierColor: Colors.black.withOpacity(0), // Transparent barrier color
-    //opaque: true, // Ensures a smooth transition without flickering
-    //barrierColor: Colors.black, // Keeps the background black to avoid flickering
+    opaque: true, // Ensures a smooth transition without flickering
+    barrierColor: Colors.black, // Keeps the background black to avoid flickering
   );
 }
 

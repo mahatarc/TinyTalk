@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart'; 
-//import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -26,7 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.72:8000/profile/'),
+      Uri.parse('http://192.168.1.9:8000/profile/'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
 
@@ -51,14 +50,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // Make AppBar transparent
-        elevation: 0, // Remove shadow
+        backgroundColor: Colors.transparent, 
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),// Navigate to HomePage
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
             );
           },
         ),
@@ -66,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
       extendBodyBehindAppBar: true,
         body: Container(
           width: double.infinity,
-          height: double.infinity, // Ensure the container takes up the full screen
+          height: double.infinity, 
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('images/bg99.jpg'),
@@ -134,4 +133,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-} 
+}

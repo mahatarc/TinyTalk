@@ -93,8 +93,10 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: _navigatorKey, // Assign the GlobalKey to the MaterialApp
         routes: {
           '/login': (context) => const LoginPage(),
+
           '/signup': (context) => const Signup(),
           '/homepage': (context) => const HomeScreen(), // Add this route
+
         },
       ),
     );
