@@ -5,6 +5,7 @@ from django.contrib.auth import views as auth_views
 from LangApp.views import ForgotPasswordView, PasswordResetConfirmView, user_profile, AdaptiveQuizAPIView, AnswerQuizAPIView,UserProgressAPIView    
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('LangApp.urls')),
@@ -18,4 +19,5 @@ urlpatterns = [
     path('api/adaptive_quiz/', AdaptiveQuizAPIView.as_view(), name='adaptive_quiz'),
     path('api/answer/', AnswerQuizAPIView.as_view(), name='answer'),
     path('api/progress/', UserProgressAPIView.as_view(), name='progress'),
+
 ]
