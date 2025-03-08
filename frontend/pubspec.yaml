@@ -68,7 +68,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/logo1.png"
+  image_path: "images/logo1.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -84,9 +84,25 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/background1.jpg
-    - audio/ka.mp3
     - images/
-    
+    - assets/audio/
+    - assets/audio/0.wav
+    - assets/audio/1.wav
+    - assets/audio/2.wav
+    - assets/audio/3.wav
+    - assets/audio/4.wav
+    - assets/audio/5.wav
+    - assets/audio/6.wav
+    - assets/audio/7.wav
+    - assets/audio/8.wav
+    - assets/audio/9.wav
+    - assets/audio/क.wav
+    - assets/audio/ख.wav
+    - assets/audio/ग.wav
+    - assets/audio/घ.wav
+    - assets/audio/ङ.wav
+
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

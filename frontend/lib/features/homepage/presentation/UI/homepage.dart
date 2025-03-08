@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
-import 'package:tiny_talks/features/profile/profile.dart';
+import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -26,15 +26,15 @@ class HomeScreen extends StatelessWidget {
           ),
           // Top-right icons
           Positioned(
-            top: 20, 
+            top: 35, 
             right: 5, 
             child: Column(
               children: [
                 IconButton(
                   icon: Image.asset(
                     'images/profile.png',
-                    width: 50, 
-                    height: 50,
+                    width: 65, 
+                    height: 65,
                   ),
                   onPressed: () {
                     Navigator.push(
@@ -45,7 +45,17 @@ class HomeScreen extends StatelessWidget {
                             );
                   },
                 ),
-                
+                // const SizedBox(height: 1), 
+                // IconButton(
+                //   icon: Image.asset(
+                //     'images/chest.png',
+                //     width: 50, 
+                //     height: 50,
+                //   ),
+                //   onPressed: () {
+                //     print("Chest button tapped");
+                //   },
+                // ),
               ],
             ),
           ),
