@@ -26,15 +26,15 @@ class HomeScreen extends StatelessWidget {
           ),
           // Top-right icons
           Positioned(
-            top: 20, 
+            top: 35, 
             right: 5, 
             child: Column(
               children: [
                 IconButton(
                   icon: Image.asset(
                     'images/profile.png',
-                    width: 50, 
-                    height: 50,
+                    width: 65, 
+                    height: 65,
                   ),
                   onPressed: () {
                     Navigator.push(
@@ -45,17 +45,17 @@ class HomeScreen extends StatelessWidget {
                             );
                   },
                 ),
-                const SizedBox(height: 1), 
-                IconButton(
-                  icon: Image.asset(
-                    'images/chest.png',
-                    width: 50, 
-                    height: 50,
-                  ),
-                  onPressed: () {
-                    print("Chest button tapped");
-                  },
-                ),
+                // const SizedBox(height: 1), 
+                // IconButton(
+                //   icon: Image.asset(
+                //     'images/chest.png',
+                //     width: 50, 
+                //     height: 50,
+                //   ),
+                //   onPressed: () {
+                //     print("Chest button tapped");
+                //   },
+                // ),
               ],
             ),
           ),

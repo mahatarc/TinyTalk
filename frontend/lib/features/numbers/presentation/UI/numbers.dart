@@ -117,8 +117,7 @@ Future<void> _stopRecording() async {
 
 
 Future<void> _evaluateSpeech(File audioFile) async {
- // const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech/";
-  const String apiUrl = "http://192.168.1.2:8000/api/deploy/evaluate_speech/";
+  const String apiUrl = "http://192.168.1.5:8000/api/deploy/evaluate_speech/";
 
   try {
     // Prepare the multipart request
@@ -134,7 +133,6 @@ Future<void> _evaluateSpeech(File audioFile) async {
     var response = await request.send();
     var responseData = await response.stream.bytesToString();
 
-    // Debug: Print server response
     print("Response: $responseData");
 
     if (response.statusCode == 200) {
@@ -221,7 +219,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
               left: 30.0,
               child: IconButton(
                 icon: const Icon(Icons.volume_up, size: 40.0),
-                onPressed: _playAudio, // Calls _playSound() when pressed
+                onPressed: _playAudio, 
               ),
             ),
             Positioned(

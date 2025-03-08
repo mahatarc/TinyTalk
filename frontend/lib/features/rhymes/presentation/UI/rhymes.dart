@@ -12,7 +12,11 @@ class RhymesPage extends StatelessWidget {
     {"title": "चि मुसी चि", "id": "OquL143cnQw"},
     {"title": "कुखुरी काँ", "id": "zi11MAkhqx4"},
     {"title": "चिडियाखाना घुम्न जाऔं", "id": "uCvk3DZVwxA"},
-    {"title": "Baby Shark Doo Doo", "id": "faBbwMK6XuI"}
+    {"title": "Baby Shark Doo Doo", "id": "faBbwMK6XuI"},
+    {"title": "कमिला र चरा ", "id": "l9J8Fu9okHk"},
+    {"title": "बुद्धिमानी भ्यागुता र मुर्ख माछा","id":"ws322lP6C0Q"},
+    {"title": "तीन साना सुँगुर","id":"RTn8K3YMx_8"},
+    {"title": "बाघ आयो बाघ आयो","id":"8ZybiY3er6k"}
   ];
 
   @override
@@ -22,7 +26,7 @@ class RhymesPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text("Rhymes"),
+        title: const Text("Rhymes & Stories"),
       ),
       body: Stack(
         children: [
