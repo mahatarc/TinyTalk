@@ -11,8 +11,6 @@ class QuizScreen extends StatelessWidget {
     return Scaffold(
         extendBodyBehindAppBar: true,
       appBar: AppBar(
-     //   title: Text('Quiz Games', style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
-     //   elevation: 1,
         backgroundColor: Colors.transparent,
       ),
       body: Stack(
@@ -71,6 +69,7 @@ class QuizScreen extends StatelessWidget {
                     },
                     backgroundImage: 'images/h1.png',
                   ),
+                  const SizedBox(height: 2), 
                 ],
               ),
             ),

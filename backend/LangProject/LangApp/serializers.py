@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
+from .models import Question
 from rest_framework import serializers
-
 
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -33,8 +33,6 @@ class SignupSerializer(serializers.ModelSerializer):
         except Exception as e:
             raise serializers.ValidationError(f"Error creating user: {e}")
 
-# serializers.py
-from rest_framework import serializers
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     def validate_email(self, value):
@@ -45,4 +43,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
         return value
 
 
-
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'image', 'audio', 'question_text', 'options', 'answer', 'difficulty']

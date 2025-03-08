@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import the package to lock orientation
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
-import 'package:tiny_talks/features/profile/profile.dart';
+import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
 
