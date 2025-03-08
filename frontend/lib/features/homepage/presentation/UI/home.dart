@@ -104,7 +104,7 @@ class Home extends StatelessWidget {
                       backgroundImage: 'images/h1.png',
                     ),
                     CategoryListTile(
-                      title: 'Rhymes',
+                      title: 'Rhymes & Stories',
                       icon: 'images/rhymes.png',
                       onTap: () {
                         Navigator.push(
