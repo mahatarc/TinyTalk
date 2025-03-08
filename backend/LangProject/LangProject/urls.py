@@ -11,6 +11,7 @@ urlpatterns = [
     path('', views.home, name='home'),  # for root URL
     path('profile/', user_profile, name='user_profile'),
     path('api/deploy/', include('model_deploy.urls')),
+    path('api/deploy/', include('asr_app.urls')),
     path('verify_email/<uidb64>/<token>/', views.VerifyEmailAPIView.as_view(), name='verify_email'), 
     path('api/password_reset/', ForgotPasswordView.as_view(), name='password_reset'),
     path('reset_password/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),  # Add this line

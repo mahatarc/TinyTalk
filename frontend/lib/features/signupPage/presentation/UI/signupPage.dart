@@ -83,7 +83,6 @@ class _SignupState extends State<Signup> {
       bloc: signUpBloc,
       listenWhen: (previous, current) => current is SignUpActionState,
       buildWhen: (previous, current) => current is! SignUpActionState,
-      
       builder: (context, state) {
         if (state is SignUpInitialState) {
           return Scaffold(
@@ -184,7 +183,7 @@ class _SignupState extends State<Signup> {
                           ),
                           child: Text(
                             _currentPage == _pages.length - 1 ? 'Signup' : 'Next',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 255)),
                           ),
                         ),
                       ),

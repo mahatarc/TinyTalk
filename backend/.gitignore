@@ -31,5 +31,5 @@ node_modules/
 *.tmp
 config.json
 .env
-fine_tuned_model/
+
 
