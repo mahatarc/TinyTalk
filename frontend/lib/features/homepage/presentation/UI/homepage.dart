@@ -45,17 +45,7 @@ class HomeScreen extends StatelessWidget {
                             );
                   },
                 ),
-                const SizedBox(height: 1), 
-                IconButton(
-                  icon: Image.asset(
-                    'images/chest.png',
-                    width: 50, 
-                    height: 50,
-                  ),
-                  onPressed: () {
-                    print("Chest button tapped");
-                  },
-                ),
+                
               ],
             ),
           ),
