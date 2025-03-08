@@ -259,7 +259,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: const Text(
                             'Sign Up',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 122, 73, 55),
+                              color: Color.fromARGB(255, 255, 145, 106),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
