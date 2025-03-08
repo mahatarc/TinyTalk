@@ -65,6 +65,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+
+]
+
+# CORS and CSRF Security
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.70:8000'  # Allow backend host
+    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
+
 ]
 
 # CORS and CSRF Security
@@ -80,6 +89,10 @@ CORS_ALLOWED_ORIGINS = [
     'http://192.168.1.9:8000',
     'http://192.168.1.7:8000',
     'http://192.168.1.72:8000',
+    'http://172.16.11.199:8000',
+    'http://172.16.11.29:8000'
+    'http://192.168.1.70:8000'
+
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
@@ -112,11 +125,13 @@ WSGI_APPLICATION = 'LangProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config.get("DB_NAME", "tinytalk_db"),
-        'USER': config.get("DB_USER", "root"),
-        'PASSWORD': config.get("DB_PASSWORD", ""),
-        'HOST': config.get("DB_HOST", "localhost"),
-        'PORT': '3306',
+
+        'NAME': config.get('DB_NAME'),
+        'HOST': config.get('DB_HOST'),
+        'USER': config.get('DB_USER'),
+        'PASSWORD': config.get('DB_PASSWORD'),
+
+
     }
 }
 
