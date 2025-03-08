@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class AlphabetPage extends StatefulWidget {
   final int startLetterIndex;
@@ -14,52 +18,21 @@ class AlphabetPage extends StatefulWidget {
 }
 
 class _AlphabetPageState extends State<AlphabetPage> {
-  // Define the alphabets in stages
-  final List<String> _alphabets = [
-    'क', 'ख', 'ग', 'घ', 'ङ', 'च', 'छ', 'ज', 'झ', 'ञ', 'ट', 'ठ', 'ड', 'ढ', 'ण',
-    'त', 'थ', 'द', 'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष'
-  ];
-
-  // Define the backgrounds (update these with your image paths)
+  final List<String> _alphabets = ['क', 'ख', 'ग', 'घ', 'ङ'];
   final List<String> _backgroundImages = [
-'images/alp1.png',
-    'images/alp2.png',  
-    'images/alp3.png',
-    'images/alp4.png',
-    'images/alp5.png',
-    'images/alp6.png',
-    'images/alp7.png',
-    'images/alp8.png',
-    'images/alp9.png',
-    'images/alp10.png',
-    'images/alp11.png',
-    'images/alp12.png',
-    'images/alp13.png',
-    'images/alp14.png',
-    'images/alp15.png',
-    'images/alp16.png',
-    'images/alp17.png',
-    'images/alp18.png',
-    'images/alp19.png',
-    'images/alp20.png',
-    'images/alp21.png',
-    'images/alp22.png',
-    'images/alp23.png',
-    'images/alp24.png',
-    'images/alp25.png',
-    'images/alp26.png',
-    'images/alp27.png',
-    'images/alp28.png',
-    'images/alp29.png',
-    'images/alp30.png',
-    
+    'images/alp1.png', 'images/alp2.png', 'images/alp3.png', 'images/alp4.png', 'images/alp5.png',
+    // 'images/alp6.png', 'images/alp7.png', 'images/alp8.png', 'images/alp9.png', 'images/alp10.png',
+    // 'images/alp11.png', 'images/alp12.png', 'images/alp13.png', 'images/alp14.png', 'images/alp15.png',
+    // 'images/alp16.png', 'images/alp17.png', 'images/alp18.png', 'images/alp19.png', 'images/alp20.png',
+    // 'images/alp21.png', 'images/alp22.png', 'images/alp23.png', 'images/alp24.png', 'images/alp25.png',
+    // 'images/alp26.png', 'images/alp27.png', 'images/alp28.png', 'images/alp29.png', 'images/alp30.png',
   ];
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterSoundPlayer _player = FlutterSoundPlayer();
   bool _isRecording = false;
-  final String _filePath = 'recording.aac';
+  String? _recordedFilePath;
 
   @override
   void initState() {
@@ -71,7 +44,6 @@ class _AlphabetPageState extends State<AlphabetPage> {
     var status = await Permission.microphone.request();
     if (status.isGranted) {
       await _recorder.openRecorder();
-      await _player.openPlayer();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Microphone permission is required')),
@@ -81,7 +53,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
 
   void _playSound() async {
     try {
-      await _audioPlayer.play(DeviceFileSource('audio/${_alphabets[widget.startLetterIndex]}.mp3'));
+      await _audioPlayer.play(AssetSource('audio/${_alphabets[widget.startLetterIndex]}.wav'));
       print('Audio played successfully');
     } catch (e) {
       print('Error playing sound: $e');
@@ -97,26 +69,106 @@ class _AlphabetPageState extends State<AlphabetPage> {
   }
 
   Future<void> _startRecording() async {
-    if (await Permission.microphone.isGranted) {
-      setState(() {
-        _isRecording = true;
-      });
-      await _recorder.startRecorder(
-        toFile: _filePath,
-        codec: Codec.aacADTS,
-      );
-    } else {
+    if (!await Permission.microphone.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Microphone permission is required')),
+      );
+      return;
+    }
+
+    Directory appDir = await getApplicationDocumentsDirectory();
+    String filePath = '${appDir.path}/recording.aac';
+
+    print("Recording will be saved to: $filePath");
+
+    setState(() {
+      _isRecording = true;
+      _recordedFilePath = filePath;
+    });
+
+    await _recorder.startRecorder(
+      toFile: filePath,
+      codec: Codec.aacADTS,
+    );
+  }
+
+  Future<void> _stopRecording() async {
+    String? filePath = await _recorder.stopRecorder();
+    print("Recording saved to: $filePath");
+
+    setState(() {
+      _isRecording = false;
+      _recordedFilePath = filePath;
+    });
+
+    if (filePath != null) {
+      File audioFile = File(filePath);
+      if (await audioFile.exists()) {
+        print("File exists at: ${audioFile.path}");
+        await _evaluateSpeech_asr(audioFile);
+      } else {
+        print("File does not exist at: ${audioFile.path}");
+      }
+    } else {
+      print("No file path returned from stopRecorder");
+    }
+  }
+
+  Future<void> _evaluateSpeech_asr(File audioFile) async {
+    const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech_asr/";
+
+    try {
+      var request = http.MultipartRequest("POST", Uri.parse(apiUrl))
+        ..fields['letter'] = _alphabets[widget.startLetterIndex] 
+        ..files.add(await http.MultipartFile.fromPath("file", audioFile.path));
+
+      print("Request Details: ");
+      print("Letter: ${_alphabets[widget.startLetterIndex]}");
+      print("File: ${audioFile.path}");
+
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+
+      print("Response: $responseData");
+
+      if (response.statusCode == 200) {
+        var result = jsonDecode(responseData);
+        double accuracy = (result['accuracy'] is int)
+            ? (result['accuracy'] as int).toDouble()
+            : result['accuracy'];
+        _showResultDialog(accuracy);
+      } else {
+        print("Error: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print("API Request Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('API Request Error: $e')),
       );
     }
   }
 
-  Future<void> _stopRecording() async {
-    await _recorder.stopRecorder();
-    setState(() {
-      _isRecording = false;
-    });
+  void _showResultDialog(double accuracy) {
+    String message = accuracy >= 0.8
+        ? "Correct pronunciation"
+        : "Incorrect pronunciation, try again";
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Evaluation Result"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -126,7 +178,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
     super.dispose();
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final isLastAlphabetInStage = widget.startLetterIndex % 5 == 4;
     final backgroundImage = _backgroundImages[widget.startLetterIndex];
@@ -179,13 +231,13 @@ class _AlphabetPageState extends State<AlphabetPage> {
           ),
           // Speaker button
           Positioned(
-            bottom: 720.0,
-            right: 30.0,
-            child: IconButton(
-              icon: const Icon(Icons.volume_up, size: 40.0),
-              onPressed: _playSound,
-            ),
-          ),
+      bottom: 600.0,
+      left: 30.0,// Move it to the left side
+    child: IconButton(
+    icon: const Icon(Icons.volume_up, size: 40.0),
+    onPressed: _playSound,  // Ensure it triggers _playSound when clicked
+  ),
+),
           // Next/Finish button with an image background at bottom right
           Positioned(
             bottom: 20.0, // Adjust to place it right at the bottom
