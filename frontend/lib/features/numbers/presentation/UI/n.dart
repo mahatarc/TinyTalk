@@ -46,11 +46,14 @@ class _NumbersState extends State<Numbers> {
   }
 
   // Updated _playSound method with the correct path
-  void _playAudio() async {
-  // Ensure you're using the correct method to load the audio file
-  await _audioPlayer.setSource(AssetSource('audio/${_numbers[_currentNumberIndex]}.wav'));
-  await _audioPlayer.resume(); // Play the audio
-}
+  Future<void> _playSound() async {
+    String audioPath = "assets/audio/${_numbers[_currentNumberIndex]}.mp3"; // Correct path to assets folder
+    try {
+      await _audioPlayer.play(AssetSource(audioPath)); // Use AssetSource for assets folder
+    } catch (e) {
+      print('Error playing sound: $e');
+    }
+  }
 
   void _toggleRecording() async {
     if (_isRecording) {
@@ -117,10 +120,7 @@ Future<void> _stopRecording() async {
 
 
 Future<void> _evaluateSpeech(File audioFile) async {
- const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech/";
-  // const String apiUrl = "http://172.16.11.29:8000/api/deploy/evaluate_speech/";
-  //const String apiUrl = "http://192.168.1.5:8000/api/deploy/evaluate_speech/";
-
+  const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech/";
 
   try {
     // Prepare the multipart request
@@ -136,6 +136,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
     var response = await request.send();
     var responseData = await response.stream.bytesToString();
 
+    // Debug: Print server response
     print("Response: $responseData");
 
     if (response.statusCode == 200) {
@@ -143,7 +144,6 @@ Future<void> _evaluateSpeech(File audioFile) async {
        double accuracy = (result['accuracy'] is int)
       ? (result['accuracy'] as int).toDouble()
       : result['accuracy'];
-        _showResultDialog(accuracy);
       // _showResultDialog(result['accuracy']);
     } else {
       print("Error: ${response.statusCode}");
@@ -162,25 +162,20 @@ Future<void> _evaluateSpeech(File audioFile) async {
 
 
   void _showResultDialog(double accuracy) {
-  String message = accuracy >= 0.8 
-      ? "Correct pronunciation" 
-      : "Incorrect pronunciation, try again";
-
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text("Evaluation Result"),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Evaluation Result"),
+        content: Text("Correct pronunciation"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _nextNumber() {
     setState(() {
@@ -222,8 +217,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
               left: 30.0,
               child: IconButton(
                 icon: const Icon(Icons.volume_up, size: 40.0),
-                onPressed: _playAudio, // Calls _playSound() when pressed
-
+                onPressed: _playSound, // Calls _playSound() when pressed
               ),
             ),
             Positioned(
