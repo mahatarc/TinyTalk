@@ -22,7 +22,10 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
   String? errorMessage;
 
-  final String apiUrl = "http://192.168.1.70:8000/api/login/";
+  final String apiUrl = "http://192.168.1.9:8000/api/login/";
+  // final String apiUrl = "http://192.168.1.9:8000/api/login/";
+  //final String apiUrl = "http://192.168.1.70:8000/api/login/";
+
 
   @override
   void initState() {
@@ -218,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.green,
+            color: Color.fromARGB(255, 240, 244, 240),
           ),
         ),
 ),
@@ -258,7 +261,9 @@ class _LoginPageState extends State<LoginPage> {
                           child: const Text(
                             'Sign Up',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 122, 73, 55),
+
+                              color:  Color.fromARGB(255, 80, 40, 26),
+
                               fontWeight: FontWeight.bold,
                             ),
                           ),
