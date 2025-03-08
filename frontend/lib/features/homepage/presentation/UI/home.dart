@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import the package to lock orientation
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
+import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
 
@@ -8,6 +10,12 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Lock the orientation to portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return Scaffold(
       extendBodyBehindAppBar: true, // Extend body behind the app bar
       appBar: AppBar(
@@ -31,40 +39,42 @@ class Home extends StatelessWidget {
           ),
           Column(
             children: [
-              const SizedBox(height: 50), // Space for the AppBar
+              const SizedBox(height: 220), // Space for the AppBar
               // Profile and Chest icons row
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 135.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // Add action for profile icon
-                        print("Profile icon tapped");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProfilePage()),
+                          );
                       },
                       child: Image.asset(
                         'images/profile.png', // Replace with your profile image path
-                        width: 70,
-                        height: 70, 
+                        width: 90,
+                        height: 90, 
                       ),
                     ),
-                    const SizedBox(width: 16), // Space between icons
-                    GestureDetector(
-                      onTap: () {
-                        // Add action for chest icon
-                        print("Chest icon tapped");
-                      },
-                      child: Image.asset(
-                        'images/chest.png', // Replace with your chest image path
-                        width: 50,
-                        height: 50,
-                      ),
-                    ),
+                    const SizedBox(width: 16), 
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     // Add action for chest icon
+                    //     print("Chest icon tapped");
+                    //   },
+                    //   child: Image.asset(
+                    //     'images/chest.png',
+                    //     width: 50,
+                    //     height: 50,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
-              const SizedBox(height: 200), // Spacer for content positioning
+              //const SizedBox(height: 2), 
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(20.0),
@@ -92,7 +102,7 @@ class Home extends StatelessWidget {
                       backgroundImage: 'images/h1.png',
                     ),
                     CategoryListTile(
-                      title: 'Rhymes',
+                      title: 'Rhymes & Stories',
                       icon: 'images/rhymes.png',
                       onTap: () {
                         Navigator.push(
@@ -134,20 +144,19 @@ class CategoryListTile extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Background image
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
               backgroundImage,
               fit: BoxFit.cover,
               width: double.infinity,
-              height: 80, // Adjust height for the tile
+              height: 80,
             ),
           ),
           // Icon and text overlay
           Row(
             children: [
-              const SizedBox(width: 40), // Padding from the left
+              const SizedBox(width: 40), 
               Image.asset(
                 icon,
                 width: 60,
@@ -159,7 +168,7 @@ class CategoryListTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // White color for contrast
+                  color: Colors.white,
                 ),
               ),
               const Spacer(), // Add equal spacing after the text

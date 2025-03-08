@@ -1,35 +1,47 @@
 from pathlib import Path
 import json
 import os
+from decouple import config
+from datetime import timedelta
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SITE_ID = 1
+REST_USE_JWT = True
+
+# Email Configuration (Using Environment Variables for Security)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')  # Your Gmail address
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  # Your Gmail app password
+EMAIL_TIMEOUT = 10  # Prevent long waits
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default sender email
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_confirm.html'
+
+# Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load config.json
+# Load config.json (if exists)
 config_path = os.path.join(BASE_DIR, "config.json")
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# Read JSON file safely
 if os.path.exists(config_path):
     with open(config_path) as config_file:
         config = json.load(config_file)
 else:
     config = {}
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# Security and Debugging
 SECRET_KEY = config.get("SECRET_KEY", "fallback-secret-key")
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get("DEBUG", True)
-
 ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
-ALLOWED_HOSTS = ['*']  # Allow all hosts (for development only)
 
-
-# Application definition
-
+# Installed Applications
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,6 +55,7 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,16 +65,31 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware'
+]
 
+# CORS and CSRF Security
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.70:8000'  # Allow backend host
+    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
 ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
-    'http://192.168.1.9:8000'
-]
+    'http://192.168.1.9:8000',
+    'http://192.168.1.7:8000',
+    'http://172.16.11.199:8000',
+    'http://172.16.11.29:8000'
+    'http://192.168.1.70:8000'
 
-CORS_ALLOW_ALL_ORIGINS = True
+]
+CORS_ALLOW_CREDENTIALS = True  # Secure session handling
+
+#CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_USE_SESSIONS = False
+SESSION_COOKIE_SECURE = True  # Secure session handling
+
 ROOT_URLCONF = 'LangProject.urls'
 
 TEMPLATES = [
@@ -82,21 +110,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'LangProject.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# Database Configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config.get('DB_NAME'),
+        'HOST': config.get('DB_HOST'),
+        'USER': config.get('DB_USER'),
+        'PASSWORD': config.get('DB_PASSWORD'),
+
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
+# Password Validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,29 +138,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
+# Static Files
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
+# Default Primary Key Type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Django REST Framework Authentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -143,7 +159,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
 }
-from datetime import timedelta
+
+# JWT Token Configuration
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),

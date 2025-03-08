@@ -10,10 +10,13 @@ class RhymesPage extends StatelessWidget {
     {"title": "अ बाट अनार", "id": "VPr1BD1isE4"},
     {"title": "सयौं थुँगा फूलका | National Anthem of Nepal", "id": "xaCnY8Bj7ww"},
     {"title": "चि मुसी चि", "id": "OquL143cnQw"},
-   {"title": "कुखुरी काँ", "id": "zi11MAkhqx4"},
+    {"title": "कुखुरी काँ", "id": "zi11MAkhqx4"},
     {"title": "चिडियाखाना घुम्न जाऔं", "id": "uCvk3DZVwxA"},
-    {"title": "Baby Shark Doo Doo", "id": "faBbwMK6XuI"}
-
+    {"title": "Baby Shark Doo Doo", "id": "faBbwMK6XuI"},
+    {"title": "कमिला र चरा ", "id": "l9J8Fu9okHk"},
+    {"title": "बुद्धिमानी भ्यागुता र मुर्ख माछा","id":"ws322lP6C0Q"},
+    {"title": "तीन साना सुँगुर","id":"RTn8K3YMx_8"},
+    {"title": "बाघ आयो बाघ आयो","id":"8ZybiY3er6k"}
   ];
 
   @override
@@ -21,9 +24,9 @@ class RhymesPage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-         elevation: 0,
+        elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text("Rhymes"),
+        title: const Text("Rhymes & Stories"),
       ),
       body: Stack(
         children: [
@@ -38,24 +41,24 @@ class RhymesPage extends StatelessWidget {
             itemBuilder: (context, index) {
               String videoThumbnailUrl =
                   'https://img.youtube.com/vi/${videos[index]["id"]}/0.jpg';
-          
+
               return SizedBox(
                 height: 100.0,
                 child: Card(
-                 color:  Color.fromARGB(255, 233, 194, 148),
+                  color: const Color.fromARGB(255, 233, 194, 148),
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(
-             borderRadius: BorderRadius.circular(10.0), // Optional: to round the corners
-                side: BorderSide(
-                    color: Color(0xFFC57F27), // Border color
-                  width: 2.0, // Border width
-             ),
-              ),
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: const BorderSide(
+                      color: Color(0xFFC57F27),
+                      width: 2.0,
+                    ),
+                  ),
                   child: ListTile(
-                    contentPadding: EdgeInsets.all(10.0),
+                    contentPadding: const EdgeInsets.all(10.0),
                     leading: SizedBox(
-                      width: 130.0,  
-                      height: 600.0, 
+                      width: 130.0,
+                      height: 600.0,
                       child: Image.network(
                         videoThumbnailUrl,
                         fit: BoxFit.cover,
@@ -114,32 +117,41 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Play Video"),
-      //   centerTitle: true,
-      // ),
-     // backgroundColor: Colors.pink.shade100.withOpacity(0.5),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'images/backg.jpg', // Background image
-              fit: BoxFit.cover,
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                YoutubePlayer(
-                  controller: _youtubePlayerController,
-                  showVideoProgressIndicator: true,
-                  progressIndicatorColor: Colors.red,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isPortrait = constraints.maxWidth < constraints.maxHeight;
+          
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'images/backg.jpg', // Background image
+                  fit: BoxFit.cover,
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // If portrait mode, set the video height to 35% of the screen height.
+                    // If landscape mode, make the video take up the entire screen.
+                    Container(
+                      width: constraints.maxWidth, // Full width of the screen
+                      height: isPortrait 
+                          ? constraints.maxHeight * 0.35 // 35% of height in portrait
+                          : constraints.maxHeight, // Full height in landscape
+                      child: YoutubePlayer(
+                        controller: _youtubePlayerController,
+                        showVideoProgressIndicator: true,
+                        progressIndicatorColor: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

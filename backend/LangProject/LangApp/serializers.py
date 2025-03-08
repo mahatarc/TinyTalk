@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from .models import Question
 from rest_framework import serializers
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -31,3 +32,18 @@ class SignupSerializer(serializers.ModelSerializer):
             return user
         except Exception as e:
             raise serializers.ValidationError(f"Error creating user: {e}")
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'image', 'audio', 'question_text', 'options', 'answer', 'difficulty']

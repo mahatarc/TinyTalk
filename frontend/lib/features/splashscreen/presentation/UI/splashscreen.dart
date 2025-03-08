@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
+import 'package:flutter/services.dart';
+
+// Olive Green Color Constants
+const Color oliveGreen = Color.fromARGB(255, 67, 129, 78);
+const Color oliveGreenLight = Color.fromARGB(255, 131, 127, 78);
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -12,160 +16,139 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController(initialPage: 0);
+  bool _isNavigating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Lock device orientation to portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    // Preload images to prevent flickering
+    Future.microtask(() {
+      precacheImage(const AssetImage("images/Welcome2.png"), context);
+      precacheImage(const AssetImage("images/play3.png"), context);
+      precacheImage(const AssetImage("images/learn.png"), context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> onBoardingPages = [
       OnboardingCard(
-        image: "images/welcome.png",
-        title: 'Welcome to Tiny Talks!',
-        description:
-            'Your Nepali Learning Adventure Begins Here!',
+        image: "images/Welcome2.png",
         buttonText: 'Next',
         onPressed: () {
-          _pageController.animateToPage(
-            1,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.linear,
-          );
+          _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
         },
       ),
       OnboardingCard(
-        image: "images/onboarding.png",
-        title: 'Learn and Play with Joy',
-        description:
-            'Let’s Talk Nepali and Have Fun!',
+        image: "images/play3.png",
         buttonText: 'Next',
         onPressed: () {
-          _pageController.animateToPage(
-            2,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.linear,
-          );
+          _pageController.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
         },
       ),
       OnboardingCard(
-        image: "images/cube.png",
-        title: 'Learn Personally',
-        description:
-            'Your Nepali Learning Adventure Begins Here!',
+        image: "images/learn.png",
         buttonText: 'Done',
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
-          );
+          if (!_isNavigating) {
+            setState(() {
+              _isNavigating = true;
+            });
+            Navigator.of(context).pushReplacement(_fadeRoute(const LoginPage()));
+          }
         },
       ),
     ];
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 50.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                children: onBoardingPages,
-              ),
-            ),
-            SmoothPageIndicator(
+      backgroundColor: Colors.black, // Prevents white flicker
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            physics: const BouncingScrollPhysics(),
+            children: onBoardingPages,
+          ),
+          Positioned(
+            bottom: 30,
+            left: MediaQuery.of(context).size.width / 2 - 50,
+            child: SmoothPageIndicator(
               controller: _pageController,
               count: onBoardingPages.length,
-              effect: ExpandingDotsEffect(
-                activeDotColor: Theme.of(context).colorScheme.primary,
-                dotColor: Theme.of(context).colorScheme.secondary,
+              effect: const ExpandingDotsEffect(
+                activeDotColor: oliveGreen,
+                dotColor: oliveGreenLight,
               ),
               onDotClicked: (index) {
-                _pageController.animateToPage(
-                  index,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.linear,
-                );
+                _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
               },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
+// **Custom Fade Page Route**
+PageRouteBuilder _fadeRoute(Widget page) {
+  return PageRouteBuilder(
+    transitionDuration: const Duration(milliseconds: 500),
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+    opaque: true, // Ensures a smooth transition without flickering
+    barrierColor: Colors.black, // Keeps the background black to avoid flickering
+  );
+}
+
+// **OnboardingCard**
 class OnboardingCard extends StatelessWidget {
-  final String image, title, description, buttonText;
-  final Function onPressed;
+  final String image, buttonText;
+  final VoidCallback onPressed;
 
   const OnboardingCard({
     super.key,
     required this.image,
-    required this.title,
-    required this.description,
     required this.buttonText,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.80,
-      width: MediaQuery.sizeOf(context).width,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(50.0),
-            child: Image.asset(
-              image,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Column(
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.lobster(
-                      textStyle: const TextStyle(
-                        color: Color.fromARGB(255, 199, 158, 158),
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[700], 
-                    fontSize: 18,
-                    fontWeight: FontWeight.w300,
-                    fontFamily: 'Times New Roman', // Custom font family for the description
-                  ),
-                ),
-              )
-            ],
-          ),
-          MaterialButton(
-            minWidth: 300,
-            onPressed: () => onPressed(),
-            color: Theme.of(context).colorScheme.primary,
-            child: Text(
-              buttonText,
-              style: const TextStyle(
-                color: Colors.white,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(image, fit: BoxFit.cover),
+        Container(color: Colors.black.withOpacity(0.3)), // Dark overlay
+        Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            MaterialButton(
+              minWidth: 200,
+              onPressed: onPressed,
+              color: oliveGreen,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Text(
+                buttonText,
+                style: const TextStyle(color: Colors.white, fontSize: 20),
               ),
             ),
-          )
-        ],
-      ),
+            const SizedBox(height: 80),
+          ],
+        ),
+      ],
     );
   }
 }
