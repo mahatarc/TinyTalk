@@ -7,20 +7,28 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpResponse
 from rest_framework_simplejwt.tokens import UntypedToken
 from .serializers import ForgotPasswordSerializer, QuestionSerializer
-from django.shortcuts import render
+from django.contrib.auth.forms import SetPasswordForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import update_session_auth_hash
 from django.views import View  
 import logging
 from rest_framework.decorators import api_view, permission_classes
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import Question, UserProgress  
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
 
@@ -28,9 +36,13 @@ def home(request):
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     user = request.user
+    user_progress, _ = UserProgress.objects.get_or_create(user=user)
+
     return Response({
         'username': user.username,
         'email': user.email,
+        'latest_score': user_progress.latest_score,  
+
     })
 
 
