@@ -24,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.2:8000/profile/'),
+      Uri.parse('http://192.168.1.5:8000/profile/'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
 

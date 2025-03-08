@@ -18,7 +18,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   int questionIndex = 0;
   int correctAnswers = 0;
   int totalQuestions = 0;
-  bool levelCleared = false;  //prevent further question fetching
+  bool levelCleared = false; // Prevent fetching new questions
 
   @override
   void initState() {
@@ -29,14 +29,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
   Future<void> _initializeDifficulty() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedDifficulty = prefs.getString('difficulty');
-
-    if (storedDifficulty == null) {
-      prefs.setString('difficulty', 'easy');
-      currentDifficulty = 'easy';
-    } else {
-      currentDifficulty = storedDifficulty;
-    }
+    currentDifficulty = prefs.getString('difficulty') ?? 'easy';
+    prefs.setString('difficulty', currentDifficulty);
   }
 
   Future<void> fetchQuestion() async {
@@ -52,44 +46,24 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.3:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
+        Uri.parse('http://192.168.1.5:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
-        print("Fetched question data: $data");
-
-        if (data != null && data is Map<String, dynamic>) {
-          if (data.containsKey('question_text') && data.containsKey('options')) {
-            setState(() {
-              question = Map<String, dynamic>.from(data);
-              isAnswered = false;
-              selectedOption = '';
-              totalQuestions++;
-            });
-          } else {
-            print("No valid question data received. Proceeding to next level.");
-            _showLevelClearedMessage();
-            // Navigate to result screen
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ResultScreen(total: score), 
-              ),
-            );
-          }
+        if (data != null && data is Map<String, dynamic> && data.containsKey('question_text')) {
+          setState(() {
+            question = data;
+            isAnswered = false;
+            selectedOption = '';
+            totalQuestions++;
+          });
         } else {
-          print("Invalid data format received");
+          _showLevelClearedMessage();
         }
-      } else if (response.statusCode == 404 && response.body.contains('No more questions in this difficulty')) {
+      } else if (response.statusCode == 404 && response.body.contains('No more questions')) {
         _showLevelClearedMessage();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ResultScreen(total: score), 
-          ),
-        );
       } else {
         throw Exception('Failed to load question');
       }
@@ -108,19 +82,19 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       isAnswered = true;
     });
 
-    final correctAnswer = question?['answer'] ?? '';
-    bool isCorrect = selected.trim() == correctAnswer.trim();
+    String? correctAnswer = question?['answer'];
+    bool isCorrect = correctAnswer != null && selected.trim() == correctAnswer.trim();
 
     if (isCorrect) {
       setState(() {
-        score += 10;  // 10 points per correct answer
+        score += 10;
         correctAnswers++;
       });
     }
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.3:8000/api/answer/'),
+        Uri.parse('http://192.168.1.5:8000/api/answer/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${await _getAccessToken()}',
@@ -133,12 +107,14 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        setState(() {
-          currentDifficulty = data['next_difficulty'];
-        });
+        if (data.containsKey('next_difficulty')) {
+          setState(() {
+            currentDifficulty = data['next_difficulty'];
+          });
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('difficulty', currentDifficulty);
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('difficulty', currentDifficulty);
+        }
       } else {
         throw Exception('Failed to submit answer');
       }
@@ -163,58 +139,104 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
   void _showLevelClearedMessage() async {
     setState(() {
-      levelCleared = true; 
+      levelCleared = true;
     });
 
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Congratulations!"),
-          content: Text(
-            "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to next level.",
+showDialog(
+  context: context,
+  builder: (context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      contentPadding: EdgeInsets.zero, // Remove default padding for better customization
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Top image
+          Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 60, // Adjust height based on your needs
+                decoration: BoxDecoration(
+                  color: Colors.grey[700], // Background color
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                ),
+              ),
+              CircleAvatar(
+                backgroundColor: Colors.white, // White border effect
+                radius: 35,
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage('images/cong.png'), // Your image path
+                ),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                increaseDifficulty();
-              },
-              child: Text("Proceed"),
+
+          SizedBox(height: 10),
+
+          // Title
+          Text(
+            "Congratulations!",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+
+          SizedBox(height: 10),
+
+          // Message
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Text(
+              "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
             ),
-          ],
-        );
-      },
+          ),
+
+          SizedBox(height: 20),
+
+          // Proceed button
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              increaseDifficulty();
+              fetchQuestion();
+            },
+            child: Text("Proceed", style: TextStyle(fontSize: 18)),
+          ),
+
+          SizedBox(height: 10),
+        ],
+      ),
     );
+  },
+);
   }
 
   void increaseDifficulty() {
     setState(() {
       correctAnswers = 0;
       questionIndex = 0;
-      currentDifficulty = 'medium';  
+      levelCleared = false;
+      currentDifficulty = 'medium'; // Adjust difficulty after level completion
     });
-    fetchQuestion();
   }
 
   Widget _buildOption(String option) {
-    String correctAnswer = question?['answer'] ?? '';
-
-    bool isCorrect = option.trim() == correctAnswer.trim();
+    String? correctAnswer = question?['answer'];
+    bool isCorrect = correctAnswer != null && option.trim() == correctAnswer.trim();
     bool isSelected = option == selectedOption;
 
-    Color optionColor;
+    Color optionColor = Colors.white;
     if (isAnswered) {
       if (isCorrect) {
         optionColor = Colors.green.shade300;
       } else if (isSelected) {
         optionColor = Colors.red.shade300;
-      } else {
-        optionColor = Colors.white;
       }
-    } else {
-      optionColor = Colors.white;
     }
 
     return GestureDetector(
@@ -299,19 +321,13 @@ class ResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: const Text("Quiz Result"),
-      ),
+      appBar: AppBar(title: const Text("Quiz Result")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Your total score is: $total',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
+            Text('Your total score is: $total', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               child: const Text("Try Again"),
