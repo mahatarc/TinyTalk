@@ -21,14 +21,13 @@ class _AlphabetPageState extends State<AlphabetPage> {
   final List<String> _alphabets = ['क', 'ख', 'ग', 'घ', 'ङ'];
   final List<String> _backgroundImages = [
     'images/alp1.png', 'images/alp2.png', 'images/alp3.png', 'images/alp4.png', 'images/alp5.png',
-    'images/alp6.png', 'images/alp7.png', 'images/alp8.png', 'images/alp9.png', 'images/alp10.png',
-    'images/alp11.png', 'images/alp12.png', 'images/alp13.png', 'images/alp14.png', 'images/alp15.png',
-    'images/alp16.png', 'images/alp17.png', 'images/alp18.png', 'images/alp19.png', 'images/alp20.png',
-    'images/alp21.png', 'images/alp22.png', 'images/alp23.png', 'images/alp24.png', 'images/alp25.png',
-    'images/alp26.png', 'images/alp27.png', 'images/alp28.png', 'images/alp29.png', 'images/alp30.png',
+    // 'images/alp6.png', 'images/alp7.png', 'images/alp8.png', 'images/alp9.png', 'images/alp10.png',
+    // 'images/alp11.png', 'images/alp12.png', 'images/alp13.png', 'images/alp14.png', 'images/alp15.png',
+    // 'images/alp16.png', 'images/alp17.png', 'images/alp18.png', 'images/alp19.png', 'images/alp20.png',
+    // 'images/alp21.png', 'images/alp22.png', 'images/alp23.png', 'images/alp24.png', 'images/alp25.png',
+    // 'images/alp26.png', 'images/alp27.png', 'images/alp28.png', 'images/alp29.png', 'images/alp30.png',
   ];
 
-   int _currentLetterIndex = 0;  // Track the current letter index
   final AudioPlayer _audioPlayer = AudioPlayer();
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterSoundPlayer _player = FlutterSoundPlayer();
@@ -232,13 +231,13 @@ class _AlphabetPageState extends State<AlphabetPage> {
           ),
           // Speaker button
           Positioned(
-            bottom: 720.0,
-            right: 30.0,
-            child: IconButton(
-              icon: const Icon(Icons.volume_up, size: 40.0),
-              onPressed: _playSound,
-            ),
-          ),
+      bottom: 600.0,
+      left: 30.0,// Move it to the left side
+    child: IconButton(
+    icon: const Icon(Icons.volume_up, size: 40.0),
+    onPressed: _playSound,  // Ensure it triggers _playSound when clicked
+  ),
+),
           // Next/Finish button with an image background at bottom right
           Positioned(
             bottom: 20.0, // Adjust to place it right at the bottom
