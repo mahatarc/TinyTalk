@@ -39,7 +39,7 @@ else:
 # Security and Debugging
 SECRET_KEY = config.get("SECRET_KEY", "fallback-secret-key")
 DEBUG = config.get("DEBUG", True)
-ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost","192.168.1.2"])
+ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
 
 # Installed Applications
 INSTALLED_APPS = [
@@ -68,16 +68,23 @@ MIDDLEWARE = [
 ]
 
 # CORS and CSRF Security
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.70:8000'  # Allow backend host
+    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
+]
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
-    'http://10.10.11.100:8000',
-    'http://192.168.1.5:8000'
+    'http://192.168.1.9:8000',
+    'http://192.168.1.7:8000',
+    'http://192.168.1.70:8000'
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
-CSRF_COOKIE_SECURE = False  # Set to True for production with HTTPS
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_NAME = 'csrftoken'
+#CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_USE_SESSIONS = False
 SESSION_COOKIE_SECURE = True  # Secure session handling
 
 ROOT_URLCONF = 'LangProject.urls'
@@ -85,7 +92,7 @@ ROOT_URLCONF = 'LangProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
