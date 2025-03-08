@@ -1,214 +1,136 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart'; 
+//import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String email = '';
+
+  // Fetch user profile from the backend
+  Future<void> fetchProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString("access_token");
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://192.168.1.72:8000/profile/'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      setState(() {
+        username = data['username'];
+        email = data['email'];
+      });
+    } else {
+      print('Failed to load profile');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfile();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // Transparent AppBar
-        elevation: 0, // No shadow
+        backgroundColor: Colors.transparent, // Make AppBar transparent
+        elevation: 0, // Remove shadow
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 253, 253, 253)), // Arrow color
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.of(context).pop(); // Go back when the arrow is pressed
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),// Navigate to HomePage
+            );
           },
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/bg3.jpg'), // Replace with your jungle image path
-            fit: BoxFit.cover,
+      extendBodyBehindAppBar: true,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity, // Ensure the container takes up the full screen
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/bg99.jpg'),
+              fit: BoxFit.cover,
           ),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage: AssetImage('images/pp.png'), // Replace with your image
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 100),
+              const CircleAvatar(
+                radius: 60,
+                backgroundImage: AssetImage('images/profile.png'),
+                backgroundColor: Colors.green,
+              ),
+              const SizedBox(height: 20),
+              buildInfoContainer(username),
+              buildInfoContainer(email),
+              buildInfoContainer("Score: 150 Points"),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.remove("access_token"); // Logout action
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Aarati Acharya',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 6, 95, 21), // Text color for better contrast
-                  ),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(fontSize: 18, color: Colors.white, fontFamily: 'Quicksand'),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'aaratiacharya@gmail.com',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: const Color.fromARGB(255, 11, 141, 54), // Text color for better contrast
-                  ),
-                ),
-                SizedBox(height: 2),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'images/coin.png', // Replace with your coin image
-                      width: 35,
-                      height: 35,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Score: 1500',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: const Color.fromARGB(255, 194, 200, 1), // Text color for better contrast
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "This week's learning time",
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '4h 30m',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      CircularProgressIndicator(
-                        value: 0.35,
-                        strokeWidth: 10,
-                        backgroundColor: Colors.grey[300],
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.yellow),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'My Activity',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 23, 135, 5), // Text color for better contrast
-                  ),
-                ),
-                SizedBox(height: 4),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 3 / 4,
-                    ),
-                    itemCount: 2,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(16)),
-                              child: Image.asset(
-                                index == 0
-                                    ? 'images/course.png'
-                                    : 'images/quiz.png', // Replace with images
-                                height: 90,
-                                width: double.infinity,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                index == 0 ? 'Courses' : 'Quiz',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(
-                                '20h',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(height: 0),
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('images/board.png',), // Replace with your wooden board image
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>  LoginPage()),
-                        );// Handle logout action
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 70, vertical: 23), backgroundColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ), 
-                      shadowColor: Colors.transparent,// Makes the button background transparent
-                    ),
-                    child: Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: const Color.fromRGBO(254, 254, 254, 1), // Text color for logout button
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
-}
+
+  Widget buildInfoContainer(String text) {
+    return Container(
+      width: double.infinity,
+      height: 70,
+      decoration: BoxDecoration(
+        image: const DecorationImage(
+          image: AssetImage('images/h1.png'),
+          fit: BoxFit.cover,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Quicksand'),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+} 

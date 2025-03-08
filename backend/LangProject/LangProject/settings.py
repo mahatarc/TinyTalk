@@ -1,8 +1,8 @@
 from pathlib import Path
 import json
 import os
-from datetime import timedelta
 from decouple import config
+from datetime import timedelta
 
 
 AUTHENTICATION_BACKENDS = [
@@ -23,7 +23,7 @@ EMAIL_TIMEOUT = 10  # Prevent long waits
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default sender email
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
-PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_email.txt'
+PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_confirm.html'
 
 # Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,16 +68,24 @@ MIDDLEWARE = [
 ]
 
 # CORS and CSRF Security
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://192.168.1.70:8000',  # Allow backend host
+    'http://192.168.1.72:8000',
+    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
+]
+# CORS and CSRF Security
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000', 
     'http://192.168.1.9:8000',
-    'http://192.168.1.7:8000'
+    'http://192.168.1.7:8000',
+    'http://192.168.1.72:8000',
 ]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
-CSRF_COOKIE_SECURE = False  # Set to True for production with HTTPS
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_NAME = 'csrftoken'
+#CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_USE_SESSIONS = False
 SESSION_COOKIE_SECURE = True  # Secure session handling
 
 ROOT_URLCONF = 'LangProject.urls'
@@ -85,7 +93,7 @@ ROOT_URLCONF = 'LangProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -106,7 +114,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': config.get("DB_NAME", "tinytalk_db"),
         'USER': config.get("DB_USER", "root"),
-        'PASSWORD': config.get("DB_PASSWORD", "944777"),
+        'PASSWORD': config.get("DB_PASSWORD", ""),
         'HOST': config.get("DB_HOST", "localhost"),
         'PORT': '3306',
     }

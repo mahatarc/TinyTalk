@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SignupService {
-  final String apiUrl = "http://192.168.1.83:8000/api/signup/";
+  final String apiUrl = "http://192.168.1.72:8000/api/signup/";
 
-  Future<Map<String, dynamic>> signup(String username, String email, String password) async {
+   Future<Map<String, dynamic>> signup(String username, String email, String password) async {
     try {
       print("Attempting API call: $apiUrl");
 
@@ -15,6 +15,7 @@ class SignupService {
           'username': username,
           'email': email,
           'password': password,
+          'verified': false, // Ensure the user is unverified initially
         }),
       ).timeout(Duration(seconds: 30));
 

@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
+import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Force portrait mode
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -18,24 +26,32 @@ class HomeScreen extends StatelessWidget {
           ),
           // Top-right icons
           Positioned(
-            top: 20, // Adjust the vertical padding
-            right: 5, // Adjust the horizontal padding
+            top: 20, 
+            right: 5, 
             child: Column(
               children: [
                 IconButton(
-                  icon: Image.asset('images/profile.png',
-                  width: 50, 
-                  height: 50,),
-              
+                  icon: Image.asset(
+                    'images/profile.png',
+                    width: 50, 
+                    height: 50,
+                  ),
                   onPressed: () {
-                    print("Profile button tapped");
+                    Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ProfilePage(
+
+                              )),
+                            );
                   },
                 ),
-                const SizedBox(height: 1), // Spacing between icons
+                const SizedBox(height: 1), 
                 IconButton(
-                  icon: Image.asset('images/chest.png',
-                   width: 50, 
-                  height: 50,),
+                  icon: Image.asset(
+                    'images/chest.png',
+                    width: 50, 
+                    height: 50,
+                  ),
                   onPressed: () {
                     print("Chest button tapped");
                   },
@@ -45,20 +61,18 @@ class HomeScreen extends StatelessWidget {
           ),
           // Play button
           Positioned(
-            bottom: 200, // Adjust the vertical position of the play button
-            // left: 0,
-            // right: 0
+            bottom: 200, 
             child: Center(
               child: GestureDetector(
                 onTap: () {
-                   Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const Home()),
-                            );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Home()),
+                  );
                 },
                 child: Image.asset(
                   'images/play.png',
-                  width: 430, // Adjust the size of the play button
+                  width: 430, 
                   height: 430,
                 ),
               ),
@@ -71,7 +85,13 @@ class HomeScreen extends StatelessWidget {
 }
 
 void main() {
-  runApp(const MaterialApp(
-    home: HomeScreen(),
-  ));
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]).then((_) {
+    runApp(const MaterialApp(
+      home: HomeScreen(),
+    ));
+  });
 }

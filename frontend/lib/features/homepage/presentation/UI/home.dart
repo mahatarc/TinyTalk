@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import the package to lock orientation
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
-import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
+import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 
 
 class Home extends StatelessWidget {
@@ -10,50 +11,72 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Lock the orientation to portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return Scaffold(
       extendBodyBehindAppBar: true, // Extend body behind the app bar
       appBar: AppBar(
         backgroundColor: Colors.transparent, // Transparent app bar
         elevation: 0, // No shadow
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 18, 16, 16)), // White for visibility
+          icon: const Icon(Icons.arrow_back, color: Colors.white), // White for visibility
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        actions: [
-          // Profile picture at the top right
-          GestureDetector(
-            onTap: () {
-              // Navigate to the profile screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(0),
-              child: CircleAvatar(
-                radius: 40, // Size of the profile picture
-                backgroundImage: AssetImage('images/pp.png'), // Replace with your profile image
-              ),
-            ),
-          ),
-        ],
       ),
       body: Stack(
         children: [
           // Background image
           Positioned.fill(
             child: Image.asset(
-              'images/stage.jpg', // Background image
+              'images/back.jpg', // Background image
               fit: BoxFit.cover,
             ),
           ),
-          // Main content
           Column(
-            children: <Widget>[
-              const SizedBox(height: 290), // Spacer for content positioning
+            children: [
+              const SizedBox(height: 50), // Space for the AppBar
+              // Profile and Chest icons row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProfilePage()),
+                          );
+                        print("Profile icon tapped");
+                      },
+                      child: Image.asset(
+                        'images/profile.png', // Replace with your profile image path
+                        width: 70,
+                        height: 70, 
+                      ),
+                    ),
+                    const SizedBox(width: 16), // Space between icons
+                    GestureDetector(
+                      onTap: () {
+                        // Add action for chest icon
+                        print("Chest icon tapped");
+                      },
+                      child: Image.asset(
+                        'images/chest.png', // Replace with your chest image path
+                        width: 50,
+                        height: 50,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 200), // Spacer for content positioning
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(20.0),
@@ -73,7 +96,7 @@ class Home extends StatelessWidget {
                       title: 'Quiz',
                       icon: 'images/quiz.png',
                       onTap: () {
-                         Navigator.push(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => QuizScreen()),
                         );
@@ -86,7 +109,7 @@ class Home extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>  RhymesPage()),
+                          MaterialPageRoute(builder: (context) => const RhymesPage()),
                         );
                       },
                       backgroundImage: 'images/h1.png',
@@ -139,14 +162,14 @@ class CategoryListTile extends StatelessWidget {
               const SizedBox(width: 40), // Padding from the left
               Image.asset(
                 icon,
-                width: 70,
-                height: 70,
+                width: 60,
+                height: 60,
               ),
               const Spacer(), // Push the text to the center
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 30,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white, // White color for contrast
                 ),
