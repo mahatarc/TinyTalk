@@ -108,8 +108,10 @@ PageRouteBuilder _fadeRoute(Widget page) {
         child: child,
       );
     },
-    opaque: true, // Ensures a smooth transition without flickering
-    barrierColor: Colors.black, // Keeps the background black to avoid flickering
+    opaque: false,  // Set opaque to false to ensure smooth background transition
+    barrierColor: Colors.black.withOpacity(0), // Transparent barrier color
+    //opaque: true, // Ensures a smooth transition without flickering
+    //barrierColor: Colors.black, // Keeps the background black to avoid flickering
   );
 }
 
