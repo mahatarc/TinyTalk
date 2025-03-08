@@ -19,7 +19,7 @@ questions = [
     {
         "image": "images/cat.png",
         "question_text": "Identify from the picture:",
-        "options": ["cat", "dog", "केरा", "आप"],
+        "options": ["cat"   , "dog", "केरा", "आप"],
         "answer": "cat",
         "difficulty": "easy",
     },
@@ -30,52 +30,114 @@ questions = [
         "answer": "dog",
         "difficulty": "easy",
     },
+
+# medium
     {
-        "image": "images/elephant.png",
+        "image": "images/quiz_1.png",
         "question_text": "Identify from the picture:",
-        "options": ["बाघ", "हात्ती", "कुकुर", "गाई"],
-        "answer": "हात्ती",
+        "options": ['९', '१', '८', '६'],
+         "answer": '१',
         "difficulty": "medium",
-    },
-        {
-        "image": "images/mother.png",
-        "question_text": "Identify from the picture:",
-        "options": ["बाघ", "हात्ती", "mother", "गाई"],
-        "answer": "mother",
-        "difficulty": "medium",
-    },
+    },   
+
     {
-        "image": "images/vegetables.png",
+        "image": "images/quiz_2.png",
         "question_text": "Identify from the picture:",
-        "options": ["फलफुल", "तरकारी", "भात", "बर्गर"],
-        "answer": "तरकारी",
-        "difficulty": "hard",
+      "options": ['९', '२', '८', '६'],
+      "answer": '२',
+        "difficulty": "medium",
+    },    
+
+    {
+        "image": "images/quiz_3.png",
+        "question_text": "Identify from the picture:",
+        "options": ['३', '१', '८', '६'],
+         "answer": '३',
+        "difficulty": "medium",
+    },    
+
+    {
+        "image": "images/quiz_4.png",
+        "question_text": "Identify from the picture:",
+        "options": ['९', '१', '४', '६'],
+        "answer": '४',
+        "difficulty": "medium",
+    },    
+
+# hard
+    {
+      "image": "images/woodspeaker.png",
+      "audio": "audio/0.wav",
+      "question": "Identify the sound:",
+      "options": ["०" , '४', '८', '२'],
+      "answer": '० ',
+      "difficulty": "hard",
     },
-        {
-        "image": "images/house.png",
-        "question_text": "Identify from the picture:",
-        "options": ["फलफुल", "तरकारी", "भात", "house"],
-        "answer": "house",
-        "difficulty": "hard",
+
+    {
+      "image": "images/woodspeaker.png",
+      "audio": "audio/1.wav",
+      "question": 'Identify the sound:',
+      "options": ['९', '१', '८', '६'],
+      "answer": '१',
+      "difficulty": "hard",
+    },
+    
+    {
+      "image": "images/woodspeaker.png",
+      "audio": "audio/2.wav",
+      "question": 'Identify the sound:',
+      "options": ['९', '२', '८', '६'],
+      "answer": '२',
+      "difficulty": "hard",
+    },
+
+    {
+      "image": "images/woodspeaker.png",
+      "audio": "audio/3.wav",
+      "question": 'Identify the sound:',
+      "options": ['३', '१', '८', '६'],
+      "answer": '३',
+      "difficulty": "hard",
+    },
+
+    {
+      "image": "images/woodspeaker.png",
+      "audio": "audio/4.wav",
+      "question": 'Identify the sound:',
+      "options": ['९', '१', '४', '६'],
+      "answer": '४',
+      "difficulty": "hard",
     },
 ]
 
 # Insert questions into the database
 def seed_database():
     for q in questions:
-        # Check if a question with the same image and options already exists
-        if not Question.objects.filter(image=q["image"]).exists():
-            # If the combination of image and options doesn't exist, create and save the question
-            Question.objects.create(
-                image=q["image"],
-                question_text=q["question_text"],
-                options=q["options"],  # This should match the model field name
-                answer=q["answer"],
-                difficulty=q["difficulty"],
-            )
-            print(f"Added question: {q['question_text']}")
+        # Check if the question has both image and audio
+        if q.get("audio"):
+            if not Question.objects.filter(audio=q["audio"]).exists():
+                Question.objects.create(
+                    audio=q["audio"],
+                    image=q["image"],
+                    question_text=q["question"],
+                    options=q["options"],
+                    answer=q["answer"],
+                    difficulty=q["difficulty"]
+                )
+                print(f"Added audio question: {q['question']}")
+        elif q.get("image"):
+            if not Question.objects.filter(image=q["image"]).exists():
+                Question.objects.create(
+                    image=q["image"],
+                    question_text=q["question_text"],
+                    options=q["options"],
+                    answer=q["answer"],
+                    difficulty=q["difficulty"]
+                )
+                print(f"Added image question: {q['question_text']}")
         else:
-            print(f"Question with image {q['image']} and options {q['options']} already exists.")
+            print(f"Question missing image or audio: {q['question_text']}")
 
 if __name__ == "__main__":
     seed_database()

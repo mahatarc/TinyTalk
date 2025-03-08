@@ -210,6 +210,7 @@ class AdaptiveQuizAPIView(APIView):
         # Pick a random unanswered question
         question = unanswered_questions.order_by('?').first()
 
+        # Ensure to include image and audio (if present) in the serialized response
         serializer = QuestionSerializer(question)
         return Response(serializer.data)
 
@@ -217,7 +218,6 @@ class AdaptiveQuizAPIView(APIView):
         difficulty_order = ['easy', 'medium', 'hard']
         current_index = difficulty_order.index(current_difficulty)
         return difficulty_order[min(current_index + 1, len(difficulty_order) - 1)]
-
 
 class AnswerQuizAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -251,11 +251,18 @@ class AnswerQuizAPIView(APIView):
         user_progress.total_answers += 1
         user_progress.save()
 
+        # Return the updated score, current difficulty, and the question's image/audio info
         return Response({
             "message": "Correct!" if correct else "Incorrect.",
             "correct_answer": question.answer,
             "current_difficulty": user_progress.last_difficulty,
-            "latest_score": user_progress.latest_score  # Return updated score
+            "latest_score": user_progress.latest_score,  # Return updated score
+            "question_data": {
+                "image": question.image,
+                "audio": question.audio,
+                "question_text": question.question_text,
+                "options": question.options,
+            }
         })
 
 
@@ -273,3 +280,4 @@ class UserProgressAPIView(APIView):
             "total_answers": user_progress.total_answers,
             "last_difficulty": user_progress.last_difficulty
         })
+

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart'; 
 
 class CorrectAnswer extends StatefulWidget {
   @override
@@ -18,11 +19,15 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   int questionIndex = 0;
   int correctAnswers = 0;
   int totalQuestions = 0;
-  bool levelCleared = false; // Prevent fetching new questions
+  bool levelCleared = false;
+  late AudioPlayer _audioPlayer; 
+  String audioUrl = '';
+  String audioImage = ''; 
 
   @override
   void initState() {
     super.initState();
+    _audioPlayer = AudioPlayer();
     _initializeDifficulty();
     fetchQuestion();
   }
@@ -58,6 +63,12 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             isAnswered = false;
             selectedOption = '';
             totalQuestions++;
+
+            // Set the audio URL and image from the database response
+            audioUrl = question?['audio'] ?? ''; 
+            audioImage = question?['image'] ?? ''; 
+            print("Fetched audio URL: $audioUrl"); 
+            print("Fetched audio image: $audioImage"); 
           });
         } else {
           _showLevelClearedMessage();
@@ -142,78 +153,70 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       levelCleared = true;
     });
 
-showDialog(
-  context: context,
-  builder: (context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      contentPadding: EdgeInsets.zero, // Remove default padding for better customization
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Top image
-          Stack(
-            alignment: Alignment.topCenter,
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          contentPadding: EdgeInsets.zero, 
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: double.infinity,
-                height: 60, // Adjust height based on your needs
-                decoration: BoxDecoration(
-                  color: Colors.grey[700], // Background color
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 60, 
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 124, 151, 119),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                    ),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: Colors.white, 
+                    radius: 35,
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage('images/cong.png'), 
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+
+              Text(
+                "Congratulations!",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
+                  style: TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
                 ),
               ),
-              CircleAvatar(
-                backgroundColor: Colors.white, // White border effect
-                radius: 35,
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage('images/cong.png'), // Your image path
-                ),
+              SizedBox(height: 20),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  increaseDifficulty();
+                  fetchQuestion();
+                },
+                child: Text("Proceed", style: TextStyle(fontSize: 18)),
               ),
+              SizedBox(height: 10),
             ],
           ),
-
-          SizedBox(height: 10),
-
-          // Title
-          Text(
-            "Congratulations!",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-
-          SizedBox(height: 10),
-
-          // Message
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text(
-              "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          SizedBox(height: 20),
-
-          // Proceed button
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              increaseDifficulty();
-              fetchQuestion();
-            },
-            child: Text("Proceed", style: TextStyle(fontSize: 18)),
-          ),
-
-          SizedBox(height: 10),
-        ],
-      ),
+        );
+      },
     );
-  },
-);
   }
 
   void increaseDifficulty() {
@@ -221,7 +224,7 @@ showDialog(
       correctAnswers = 0;
       questionIndex = 0;
       levelCleared = false;
-      currentDifficulty = 'medium'; // Adjust difficulty after level completion
+      currentDifficulty = 'medium';
     });
   }
 
@@ -261,6 +264,16 @@ showDialog(
     );
   }
 
+  // Function to play audio when the image is clicked
+  void _playAudio() async {
+    print("Audio URL: $audioUrl"); 
+    if (audioUrl.isNotEmpty) {
+      await _audioPlayer.play(AssetSource(audioUrl));
+    } else {
+      print("Audio file is empty!");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (question == null) {
@@ -272,41 +285,60 @@ showDialog(
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 116, 233, 98),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (question != null && question!['image'] != null)
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('${question!['image']}'),
-                    fit: BoxFit.contain,
+        backgroundColor: Colors.transparent, // Transparent AppBar
+        elevation: 0,       ),
+      extendBodyBehindAppBar: true,
+      body: Container(
+          width: double.infinity,
+        height: double.infinity,
+
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/quizbg.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Check if 'image' exists and is a string before rendering
+              if (question != null && question!['image'] != null && question!['image'] is String)
+               const SizedBox(height: 70),
+                 GestureDetector(
+                  onTap: _playAudio, // Play audio when the image is tapped
+                  child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(audioImage),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ),
+              const SizedBox(height: 16),
+              Text(
+                question?['question_text'] ?? 'Question not available',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            const SizedBox(height: 16),
-            Text(
-              question?['question_text'] ?? 'Question not available',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            if (question?['options'] != null && question?['options'] is List)
-              ...List.generate(
-                question!['options'].length,
-                (index) => _buildOption(question!['options'][index]),
-              ),
-            const SizedBox(height: 20),
-            if (isAnswered)
-              ElevatedButton(
-                onPressed: nextQuestion,
-                child: Text("Next", style: TextStyle(fontSize: 18)),
-              ),
-          ],
+              const SizedBox(height: 20),
+              if (question?['options'] != null && question?['options'] is List)
+                ...List.generate(
+                  question!['options'].length,
+                  (index) => _buildOption(question!['options'][index]),
+                ),
+              const SizedBox(height: 20),
+              if (isAnswered)
+                ElevatedButton(
+                  onPressed: nextQuestion,
+                  child: Text("Next", style: TextStyle(fontSize: 18)),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -326,11 +358,9 @@ class ResultScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Your total score is: $total', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Try Again"),
+            Text(
+              'You got $total questions right!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
