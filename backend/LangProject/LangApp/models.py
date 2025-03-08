@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User  # Import the built-in User model
+from django.contrib.auth.models import User  
 
 # Create your models here.
 class Data(models.Model):
@@ -7,7 +7,8 @@ class Data(models.Model):
     description = models.CharField(max_length=500)
     
 class Question(models.Model):
-    image = models.CharField(max_length=255)
+    image = models.CharField(max_length=255, blank=True, null=True)
+    audio = models.CharField(max_length=255, blank=True, null=True) 
     question_text = models.CharField(max_length=255)
     options = models.JSONField() 
     answer = models.CharField(max_length=255)
@@ -15,6 +16,7 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+
 
 class UserProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

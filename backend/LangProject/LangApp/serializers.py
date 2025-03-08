@@ -46,4 +46,4 @@ class ForgotPasswordSerializer(serializers.Serializer):
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id', 'image', 'question_text', 'options', 'answer', 'difficulty']
+        fields = ['id', 'image', 'audio', 'question_text', 'options', 'answer', 'difficulty']
