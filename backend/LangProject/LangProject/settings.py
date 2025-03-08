@@ -79,7 +79,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://192.168.1.9:8000',
     'http://192.168.1.7:8000',
     'http://172.16.11.199:8000',
-    'http://172.16.11.29:8000'
+    'http://172.16.11.29:8000',
     'http://192.168.1.70:8000'
 
 ]
@@ -118,7 +118,6 @@ DATABASES = {
         'HOST': config.get('DB_HOST'),
         'USER': config.get('DB_USER'),
         'PASSWORD': config.get('DB_PASSWORD'),
-
     }
 }
 
