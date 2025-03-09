@@ -34,6 +34,20 @@ class QuizScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center, // Centering the content vertically
                 children: [
+                   CategoryListTile(
+                    title: 'Identify from Picture',
+                    icon: 'images/puzzle.png',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CorrectAnswer(),
+                        ),
+                      );
+                    },
+                    backgroundImage: 'images/h1.png',
+                  ),
+                  const SizedBox(height: 2),
                   CategoryListTile(
                     title: 'Match the Letters',
                     icon: 'images/cube.png',
@@ -56,20 +70,6 @@ class QuizScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => MatchFollowingGame(),
-                        ),
-                      );
-                    },
-                    backgroundImage: 'images/h1.png',
-                  ),
-                  const SizedBox(height: 2),
-                  CategoryListTile(
-                    title: 'Identify from Picture',
-                    icon: 'images/puzzle.png',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CorrectAnswer(),
                         ),
                       );
                     },

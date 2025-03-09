@@ -8,42 +8,42 @@ class MatchHalfGame extends StatefulWidget {
 
 class _MatchHalfGameState extends State<MatchHalfGame> {
   final List<Map<String, String>> nepaliPairs = [
-    {'half1': 'क', 'half2': 'क'},
-    {'half1': 'ख', 'half2': 'ख'},
-    {'half1': 'ग', 'half2': 'ग'},
-    {'half1': 'घ', 'half2': 'घ'},
-    {'half1': 'ङ', 'half2': 'ङ'},
-    {'half1': 'च', 'half2': 'च'},
-    {'half1': 'छ', 'half2': 'छ'},
-    {'half1': 'ज', 'half2': 'ज'},
-    {'half1': 'झ', 'half2': 'झ'},
-    {'half1': 'ञ', 'half2': 'ञ'},
-    {'half1': 'ट', 'half2': 'ट'},
-    {'half1': 'ठ', 'half2': 'ठ'},
-    {'half1': 'ड', 'half2': 'ड'},
-    {'half1': 'ढ', 'half2': 'ढ'},
-    {'half1': 'ण', 'half2': 'ण'},
-    {'half1': 'त', 'half2': 'त'},
-    {'half1': 'थ', 'half2': 'थ'},
-    {'half1': 'द', 'half2': 'द'},
-    {'half1': 'ध', 'half2': 'ध'},
-    {'half1': 'न', 'half2': 'न'},
-    {'half1': 'प', 'half2': 'प'},
-    {'half1': 'फ', 'half2': 'फ'},
-    {'half1': 'ब', 'half2': 'ब'},
-    {'half1': 'भ', 'half2': 'भ'},
-    {'half1': 'म', 'half2': 'म'},
-    {'half1': 'य', 'half2': 'य'},
-    {'half1': 'र', 'half2': 'र'},
-    {'half1': 'ल', 'half2': 'ल'},
-    {'half1': 'व', 'half2': 'व'},
-    {'half1': 'श', 'half2': 'श'},
-    {'half1': 'ष', 'half2': 'ष'},
-    {'half1': 'स', 'half2': 'स'},
-    {'half1': 'ह', 'half2': 'ह'},
-    {'half1': 'क्ष', 'half2': 'क्ष'},
-    {'half1': 'त्र', 'half2': 'त्र'},
-    {'half1': 'ज्ञ', 'half2': 'ज्ञ'},
+    {'half1': 'рдХ', 'half2': 'рдХ'},
+    {'half1': 'рдЦ', 'half2': 'рдЦ'},
+    {'half1': 'рдЧ', 'half2': 'рдЧ'},
+    {'half1': 'рдШ', 'half2': 'рдШ'},
+    {'half1': 'рдЩ', 'half2': 'рдЩ'},
+    {'half1': 'рдЪ', 'half2': 'рдЪ'},
+    {'half1': 'рдЫ', 'half2': 'рдЫ'},
+    {'half1': 'рдЬ', 'half2': 'рдЬ'},
+    {'half1': 'рдЭ', 'half2': 'рдЭ'},
+    {'half1': 'рдЮ', 'half2': 'рдЮ'},
+    {'half1': 'рдЯ', 'half2': 'рдЯ'},
+    {'half1': 'рда', 'half2': 'рда'},
+    {'half1': 'рдб', 'half2': 'рдб'},
+    {'half1': 'рдв', 'half2': 'рдв'},
+    {'half1': 'рдг', 'half2': 'рдг'},
+    {'half1': 'рдд', 'half2': 'рдд'},
+    {'half1': 'рде', 'half2': 'рде'},
+    {'half1': 'рдж', 'half2': 'рдж'},
+    {'half1': 'рдз', 'half2': 'рдз'},
+    {'half1': 'рди', 'half2': 'рди'},
+    {'half1': 'рдк', 'half2': 'рдк'},
+    {'half1': 'рдл', 'half2': 'рдл'},
+    {'half1': 'рдм', 'half2': 'рдм'},
+    {'half1': 'рдн', 'half2': 'рдн'},
+    {'half1': 'рдо', 'half2': 'рдо'},
+    {'half1': 'рдп', 'half2': 'рдп'},
+    {'half1': 'рд░', 'half2': 'рд░'},
+    {'half1': 'рд▓', 'half2': 'рд▓'},
+    {'half1': 'рд╡', 'half2': 'рд╡'},
+    {'half1': 'рд╢', 'half2': 'рд╢'},
+    {'half1': 'рд╖', 'half2': 'рд╖'},
+    {'half1': 'рд╕', 'half2': 'рд╕'},
+    {'half1': 'рд╣', 'half2': 'рд╣'},
+    {'half1': 'рдХреНрд╖', 'half2': 'рдХреНрд╖'},
+    {'half1': 'рддреНрд░', 'half2': 'рддреНрд░'},
+    {'half1': 'рдЬреНрдЮ', 'half2': 'рдЬреНрдЮ'},
   ];
 
   List<Map<String, String>> currentPairs = [];
@@ -81,10 +81,9 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Match Nepali Letters'),
-        backgroundColor: Color.fromARGB(255, 24, 148, 53)
+        backgroundColor: Colors.transparent
       ),
-        // extendBodyBehindAppBar: true,
+        extendBodyBehindAppBar: true,
 
       body: Stack(
         
@@ -100,7 +99,8 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
             child: Column(
           
               children: [
-                
+SizedBox(height: 80),
+
                 Container(
                   margin: const EdgeInsets.only(top: 20, bottom: 20),
                   padding: const EdgeInsets.all(10),
@@ -108,7 +108,6 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
                     color: const Color.fromARGB(255, 149, 212, 106),
                     borderRadius: BorderRadius.circular(12),
                   ),
-             
                   child: Text(
                     'Match the Letters!',
                     style: TextStyle(
@@ -128,7 +127,7 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Text(
-                          'Congratulations! You got 30 coins! 🎉',
+                          'Congratulations! You got 30 coins! ЁЯОЙ',
                           style: TextStyle(
                             fontSize: 30,
                             color: Colors.white,
@@ -154,7 +153,7 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
                                       child: Text(
                                         pair['half1']!,
                                         style: TextStyle(
-                                          fontSize: 40,
+                                          fontSize: 30,
                                           color: Colors.blue,
                                         ),
                                       ),

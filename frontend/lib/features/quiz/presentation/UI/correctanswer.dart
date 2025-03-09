@@ -166,7 +166,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.2:8000/profile/'),
+        Uri.parse('${AppConfig.baseUrl}/profile/'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -199,20 +199,11 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       levelCleared = true;
     });
 
- // Fetch latest score
+ // Fetch latest score nextQuestion
     Map<String, String> profileData = await fetchProfile();
     setState(() {
       latest_score = profileData['latest_score'] ?? '0'; // Set the latest score from the profile data
     });
-
-    // // Update the reward based on the difficulty
-    // if (currentDifficulty == 'easy') {
-    //   easyReward = score;  // Assuming the score is the reward for that level
-    // } else if (currentDifficulty == 'medium') {
-    //   mediumReward = score;
-    // } else if (currentDifficulty == 'hard') {
-    //   hardReward = score;
-    // }
 
     // Show dialog
     showDialog(
@@ -253,7 +244,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
               SizedBox(height: 10),
               Text(
                 "Congratulations!",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green.shade700),
               ),
               SizedBox(height: 10),
               Padding(
@@ -261,8 +252,9 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 child: Text(
                   currentDifficulty == 'hard'
                       ? "You have completed all levels!\n Your total score till now is: $latest_score"
-                      : "You have cleared $currentDifficulty level.\nYour total score till now is: $latest_score\nProceed to the next level.",
-                  style: TextStyle(fontSize: 18),
+                      : "You have cleared $currentDifficulty level.\nYour total score : $latest_score\nProceed to the next level.",
+                  // style: TextStyle(fontSize: 18),
+                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 142, 116, 56)),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -286,7 +278,10 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                         fetchQuestion();
                       }
                     },
-                    child: Text("Proceed", style: TextStyle(fontSize: 18)),
+                    child: Text("Proceed", 
+                    style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 142, 116, 56)),
+
+                    ),
                   ),
                 ],
               ),
@@ -312,37 +307,48 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     }
   }
 
-  Widget _buildOption(String option) {
-    String? correctAnswer = question?['answer'];
-    bool isCorrect = correctAnswer != null && option.trim() == correctAnswer.trim();
-    bool isSelected = option == selectedOption;
+Widget _buildOption(String option) {
+  String? correctAnswer = question?['answer'];
+  bool isCorrect = correctAnswer != null && option.trim() == correctAnswer.trim();
+  bool isSelected = option == selectedOption;
 
-    Color optionColor = Colors.white;
-    if (isAnswered) {
-      if (isCorrect) {
-        optionColor = Colors.green.shade300;
-      } else if (isSelected) {
-        optionColor = Colors.red.shade300;
-      }
-    }
+  Color optionColor = Colors.white;
 
-    return GestureDetector(
-      onTap: () => submitAnswer(option),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: optionColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          option,
-          style: GoogleFonts.notoSans(fontSize: 22, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
+  if (isAnswered) {
+    if (isCorrect) {
+      optionColor = Colors.green.shade300;
+    } else if (isSelected) {
+      optionColor = Colors.red.shade300;
+    } 
   }
+
+  return GestureDetector(
+    onTap: () => submitAnswer(option),
+    child: AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(16),
+      width: double.infinity,  // Makes the width of the option fill the parent container
+      decoration: BoxDecoration(
+        color: optionColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Text(
+        option,
+        style: GoogleFonts.notoSans(fontSize: 22, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+      ),
+    ),
+  );
+}
+
 
   void _playAudio() async {
     if (audioUrl.isNotEmpty) {
@@ -355,13 +361,18 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   @override
   Widget build(BuildContext context) {
     if (question == null) {
-      return Scaffold(appBar: AppBar(title: const Text("Loading...")), body: Center(child: CircularProgressIndicator()));
+      return Scaffold(appBar: AppBar(title: const Text("Loading...")),);
     }
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent),
-      extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Color.fromARGB(223, 142, 233, 103),
+              title: Text('Audio Visual Quiz'),
+
+       elevation: 5,),
+      
+      
       body: Container(
+       
         width: double.infinity,
         height: double.infinity,
         padding: EdgeInsets.all(16.0),
@@ -385,7 +396,19 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
               SizedBox(height: 20),
               if (question?['options'] != null)
                 ...question!['options'].map<Widget>((opt) => _buildOption(opt)).toList(),
-              if (isAnswered) ElevatedButton(onPressed: nextQuestion, child: Text("Next")),
+                SizedBox(height: 16),
+              if (isAnswered) ElevatedButton(
+  onPressed: nextQuestion,
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.brown[500],
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+  ),
+  child: Text("Next", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Colors.white)),
+),
+
             ],
           ),
         ),
@@ -404,7 +427,7 @@ class QuizCompletionScreen extends StatefulWidget {
 }
 
 class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
-  // Variables to hold the state of the quiz, such as the current question, difficulty, etc.
+  // Variables to hold the state of the quiz, such as the current question, difficulty, etc. Next
   var question;
   String latest_score = '0';
   String currentDifficulty = 'easy';
@@ -445,26 +468,19 @@ class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
                 SizedBox(height: 20),
                 Text(
                   "Congratulations!",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 22, 129, 17),
-                    letterSpacing: 1.2,
-                  ),
+                  style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 22, 129, 17),),
+                
                 ),
                 SizedBox(height: 10),
                 Text(
                   "Your Total Score:",
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Color.fromARGB(255, 22, 129, 17),
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 22, 129, 17),),
+
                 ),
                 SizedBox(height: 10),
                 Text(
                   '${widget.totalScore}',
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 50,
                     fontWeight: FontWeight.bold,
                     color: Colors.yellow.shade700,
@@ -484,11 +500,13 @@ class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
                     backgroundColor: Colors.green.shade600,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text("Restart Quiz"),
+                  child: Text("Restart Quiz",
+                  style: GoogleFonts.poppins(fontSize: 14.3, color: Colors.white),),
                 ),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                    
@@ -498,12 +516,12 @@ class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
                     backgroundColor: Colors.green.shade600,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: Text(
                     "Back to Home",
-                    style: TextStyle(fontSize: 18),
+                    style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
                   ),
                 ),
                 SizedBox(height: 20),
@@ -553,14 +571,15 @@ return AlertDialog(
             SizedBox(height: 10),
             Text(
               "Warning!",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 129, 17, 17),),
             ),
             SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: Text(
                 "You will lose all your progress. \n \n Are you sure you want to continue?",
-                style: TextStyle(fontSize: 18),
+                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 22, 129, 17),),
+
                 textAlign: TextAlign.center,
               ),
             ),
@@ -572,13 +591,17 @@ return AlertDialog(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: Text("Cancel"),
+            child: Text("Cancel", 
+             style: GoogleFonts.poppins( fontWeight: FontWeight.bold, color: Color.fromARGB(255, 70, 68, 1),),
+),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true); 
             },
-            child: Text("Continue"),
+            child: Text("Continue",
+              style: GoogleFonts.poppins( fontWeight: FontWeight.bold, color: Color.fromARGB(255, 70, 68, 1),),
+),
           ),
         ],
       );
