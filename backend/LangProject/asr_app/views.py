@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 # Load fine-tuned model (Ensure correct path)
-MODEL_PATH = os.path.expanduser("D:\Major_Project\TinyTalkProject\ASR_model")
+MODEL_PATH = os.path.expanduser("~/Documents/Tiny Talk/TinyTalk/ASR_model")
  # Ensure this path is correct
 processor = Wav2Vec2Processor.from_pretrained(MODEL_PATH)
 model = Wav2Vec2ForSequenceClassification.from_pretrained(MODEL_PATH)

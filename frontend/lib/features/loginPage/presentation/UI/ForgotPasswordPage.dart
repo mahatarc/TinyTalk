@@ -108,7 +108,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 Text(
                   message!,
                   style: TextStyle(
-                    color: message!.contains("sent") ? Colors.green : Colors.red,
+                    color: message!.contains("sent") ? Colors.brown : Colors.red,
                   ),
                 ),
               const SizedBox(height: 10),

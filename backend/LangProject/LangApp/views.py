@@ -405,4 +405,8 @@ class UserProgressAPIView(APIView):
             "last_difficulty": user_progress.last_difficulty
         })
 
-
+class CheckEmailAPIView(APIView):
+    def get(self, request, email, format=None):
+        if User.objects.filter(email=email).exists():
+            return Response({"email_exists": True}, status=status.HTTP_200_OK)
+        return Response({"email_exists": False}, status=status.HTTP_200_OK)

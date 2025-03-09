@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
 import 'package:tiny_talks/features/signupPage/presentation/bloc/signup_bloc.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:tiny_talks/config.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -125,21 +128,24 @@ class _SignupState extends State<Signup> {
     }
   }
 
-  void _validateEmail(String value) {
-    if (value.isEmpty) {
-      setState(() {
-        _emailErrorMessage = 'Email is required';
-      });
-    } else if (!_isValidEmail(value)) {
-      setState(() {
-        _emailErrorMessage = 'Please enter a valid email address';
-      });
-    } else {
-      setState(() {
-        _emailErrorMessage = '';
-      });
+  void _validateEmail(String value) async {
+  if (value.isEmpty) {
+    setState(() { _emailErrorMessage = 'Email is required'; });
+  } else if (!_isValidEmail(value)) {
+    setState(() { _emailErrorMessage = 'Please enter a valid email address'; });
+  } else {
+    final response = await http.get(Uri.parse("${AppConfig.baseUrl}/api/check_email/$value"));
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['email_exists']) {
+        setState(() { _emailErrorMessage = 'Email is already registered!'; });
+      } else {
+        setState(() { _emailErrorMessage = ''; });
+      }
     }
   }
+}
+
 
   bool _isValidEmail(String email) {
     // Regular expression for validating email format
@@ -219,11 +225,21 @@ class _SignupState extends State<Signup> {
                         child: ElevatedButton(
                           onPressed: _currentPage == _pages.length - 1
                               ? () {
-                                  if (_passwordController.text.trim() !=
+                                // Check if password fields are empty
+                                  if (_passwordController.text.trim().isEmpty ||
+                                      _confirmPasswordController.text.trim().isEmpty){
+                                        setState((){
+                                          _passwordErrorMessage = 'Both password fields are required!';
+                                        });
+                                        return; // Stop sign-up if any password field is empty
+                                      }
+                                    // Check if passwords match
+                                   if (_passwordController.text.trim() !=
                                       _confirmPasswordController.text.trim()) {
                                     setState(() {
                                       _passwordErrorMessage = 'Passwords do not match!';
                                     });
+                                    return; // Stop sign-up if passwords do not match
                                   } else {
                                     setState(() {
                                       _passwordErrorMessage = '';
@@ -297,6 +313,10 @@ class _SignupState extends State<Signup> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const Home()),
+          );
+        } else if (state is SignUpErrorState){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },

@@ -29,7 +29,7 @@ class SignupService {
       } else {
         return {
           "success": false,
-          "message": responseData['message'] ?? "Signup failed"
+          "message": responseData['error'] ?? responseData['message'] ?? "Signup failed"
         };
       }
     } catch (e) {

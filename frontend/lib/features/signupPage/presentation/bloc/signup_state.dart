@@ -14,6 +14,7 @@ class SignUpButtonPressedWaitForVerification extends SignUpState {}
 
 class SignUpLoagedState extends SignUpState{}
 
-class SignUpErrorState extends SignUpState{
-  SignUpErrorState(param0);
+class SignUpErrorState extends SignUpState {
+  final String message;
+  SignUpErrorState(this.message);
 }
