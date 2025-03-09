@@ -390,20 +390,29 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   }
 }
 
-class QuizCompletionScreen extends StatelessWidget {
+class QuizCompletionScreen extends StatefulWidget {
   final int totalScore;
 
   QuizCompletionScreen({required this.totalScore});
 
   @override
+  _QuizCompletionScreenState createState() => _QuizCompletionScreenState();
+}
+
+class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
+  // Variables to hold the state of the quiz, such as the current question, difficulty, etc.
+  var question;
+  String latest_score = '0';
+  String currentDifficulty = 'easy'; // Example: replace with actual data
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // title: Text("Quiz Completed"),
         backgroundColor: Colors.transparent, 
         elevation: 0, 
       ),
-            extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: true,
 
       body: Container(
         width: double.infinity,
@@ -450,7 +459,7 @@ class QuizCompletionScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  '$totalScore',
+                  '${widget.totalScore}',
                   style: TextStyle(
                     fontSize: 50,
                     fontWeight: FontWeight.bold,
@@ -466,8 +475,19 @@ class QuizCompletionScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
+                  onPressed: _restartQuiz,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text("Restart Quiz"),
+                ),
+                ElevatedButton(
                   onPressed: () {
-                    // Add your next action here, for example, navigate to home screen
+                   
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -482,6 +502,8 @@ class QuizCompletionScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
+                SizedBox(height: 20),
+                
               ],
             ),
           ),
@@ -489,4 +511,135 @@ class QuizCompletionScreen extends StatelessWidget {
       ),
     );
   }
+
+Future<void> _restartQuiz() async {
+  // Show a confirmation dialog before restarting the quiz
+  bool? shouldRestart = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        contentPadding: EdgeInsets.zero,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 233, 83, 83),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                  ),
+                ),
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 35,
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage('images/alert.png'),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Warning!",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Text(
+                "You will lose all your progress. \n \n Are you sure you want to continue?",
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 20),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // User cancels
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // User confirms
+            },
+            child: Text("Continue"),
+          ),
+        ],
+      );
+    },
+  );
+
+  // If the user confirmed, restart the quiz
+  if (shouldRestart == true) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString("access_token");
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.2:8000/api/restart_quiz/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+
+        setState(() {
+          question = null;
+          latest_score = data['latest_score'].toString(); // Convert to String
+          currentDifficulty = data['last_difficulty'];
+          List<dynamic> questions = data['questions'];
+          if (questions.isNotEmpty) {
+            question = questions[0];
+          }
+        });
+
+        // Show a success message (Snackbar)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Quiz has been restarted successfully! Go ahead and do the quiz again."),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        throw Exception('Failed to restart quiz');
+      }
+    } catch (e) {
+      print("Error restarting quiz: $e");
+
+      // Show an error message if something goes wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to restart quiz. Please try again."),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  } else {
+    // If user cancels, no further action
+    print("Quiz restart canceled.");
+  }
+}
+
+
+
 }

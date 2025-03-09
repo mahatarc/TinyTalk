@@ -304,3 +304,38 @@ class UserProgressAPIView(APIView):
             "total_answers": user_progress.total_answers,
             "last_difficulty": user_progress.last_difficulty
         })
+    
+class RestartQuizAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        user_progress, _ = UserProgress.objects.get_or_create(user=user)
+
+        # Reset user progress
+        user_progress.last_difficulty = 'easy'  # Difficulty reset to 'easy'
+        user_progress.correct_answers = 0
+        user_progress.incorrect_answers = 0
+        user_progress.total_answers = 0
+        user_progress.latest_score = 0
+        user_progress.correct_questions.clear()  # Remove all correct questions
+        user_progress.incorrect_questions.clear()  # Remove all incorrect questions
+        user_progress.save()
+
+        # Fetch questions based on 'easy' difficulty (similar to AdaptiveQuizAPIView)
+        easy_questions = Question.objects.filter(difficulty='easy')
+        
+        # If needed, you can return a random subset of questions
+        # If you want to return the first few questions, you can adjust accordingly.
+        # Example: getting the first 5 easy questions
+        easy_questions = easy_questions[:5]  
+
+        # Serialize the questions to return
+        question_data = [{"question_id": q.id, "question_text": q.question_text, "options": q.options} for q in easy_questions]
+
+        return Response({
+            "message": "Quiz restarted successfully! Difficulty set to 'easy'.",
+            "last_difficulty": user_progress.last_difficulty,
+            "latest_score": user_progress.latest_score,
+            "questions": question_data  # Return easy-level questions
+        })
