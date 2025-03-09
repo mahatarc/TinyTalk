@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:audioplayers/audioplayers.dart'; 
+import 'package:audioplayers/audioplayers.dart';
 
 class CorrectAnswer extends StatefulWidget {
   @override
@@ -12,7 +12,7 @@ class CorrectAnswer extends StatefulWidget {
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
   Map<String, dynamic>? question;
-  int score = 0;  // Score will now persist
+  int score = 0;
   bool isAnswered = false;
   String selectedOption = '';
   String currentDifficulty = 'easy';
@@ -20,16 +20,15 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   int correctAnswers = 0;
   int totalQuestions = 0;
   bool levelCleared = false;
-  late AudioPlayer _audioPlayer; 
+  late AudioPlayer _audioPlayer;
   String audioUrl = '';
-  String audioImage = ''; 
+  String audioImage = '';
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     _initializeDifficulty();
-    _loadScore();
     fetchQuestion();
   }
 
@@ -167,11 +166,11 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     showDialog(
       context: context,
       builder: (context) {
-       return AlertDialog(
+        return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          contentPadding: EdgeInsets.zero, 
+          contentPadding: EdgeInsets.zero,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -180,18 +179,18 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: 60, 
+                    height: 60,
                     decoration: BoxDecoration(
                       color: Color.fromARGB(255, 124, 151, 119),
                       borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                     ),
                   ),
                   CircleAvatar(
-                    backgroundColor: Colors.white, 
+                    backgroundColor: Colors.white,
                     radius: 35,
                     child: CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('images/cong.png'), 
+                      backgroundImage: AssetImage('images/cong.png'),
                     ),
                   ),
                 ],
@@ -285,12 +284,11 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     }
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, ),
-          extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent,),
+      extendBodyBehindAppBar: true,
       body: Container(
-          width: double.infinity,
+        width: double.infinity,
         height: double.infinity,
-
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -298,9 +296,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             fit: BoxFit.cover,
           ),
         ),
-
         child: Padding(
-                  padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
               if (question?['image'] != null)
