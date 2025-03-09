@@ -1,16 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:tiny_talks/config.dart';
 
 class SignupService {
-
-//   final String apiUrl = "http://192.168.1.70:8000/api/signup/";
-
-  //final String apiUrl = "http://192.168.1.72:8000/api/signup/";
-
-  final String apiUrl = "http://192.168.1.9:8000/api/signup/";
-  // final String apiUrl = "http://172.16.11.29:8000/api/signup/";
-
-
+   final String apiUrl = "${AppConfig.baseUrl}/api/signup/";
    Future<Map<String, dynamic>> signup(String username, String email, String password) async {
     try {
       print("Attempting API call: $apiUrl");
