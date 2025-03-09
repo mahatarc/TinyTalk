@@ -4,6 +4,7 @@ import 'package:flutter/services.dart'; // Import the package to lock orientatio
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tiny_talks/config.dart';
 import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/ForgotPasswordPage.dart';
 import 'package:tiny_talks/features/signupPage/presentation/UI/signupPage.dart';
@@ -22,10 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
   String? errorMessage;
 
-  final String apiUrl = "http://192.168.1.9:8000/api/login/";
-  // final String apiUrl = "http://192.168.1.9:8000/api/login/";
-  //final String apiUrl = "http://192.168.1.70:8000/api/login/";
-
+  final String apiUrl = "${AppConfig.baseUrl}/api/login/";
 
   @override
   void initState() {

@@ -55,8 +55,8 @@ class Home extends StatelessWidget {
                       },
                       child: Image.asset(
                         'images/profile.png', // Replace with your profile image path
-                        width: 90,
-                        height: 90, 
+                        width: 74,
+                        height: 100, 
                       ),
                     ),
                     const SizedBox(width: 16), 
@@ -81,7 +81,7 @@ class Home extends StatelessWidget {
                   children: <Widget>[
                     CategoryListTile(
                       title: 'Course',
-                      icon: 'images/course.png',
+                      icon: 'images/course1.png',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -166,7 +166,7 @@ class CategoryListTile extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

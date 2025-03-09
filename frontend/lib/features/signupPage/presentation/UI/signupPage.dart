@@ -27,9 +27,13 @@ class _SignupState extends State<Signup> {
   late TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
   int _currentPage = 0;
   late List<Widget> _pages;
   late SignUpBloc signUpBloc;
+  String _passwordErrorMessage = '';
+  String _usernameErrorMessage = '';
+  String _emailErrorMessage = '';
 
   @override
   void initState() {
@@ -38,9 +42,9 @@ class _SignupState extends State<Signup> {
 
     super.initState();
     _pages = [
-      UsernamePage(_usernameController),
-      EmailPage(_emailController),
-      PasswordPage(_passwordController),
+      UsernamePage(_usernameController, _usernameErrorMessage, _validateUsername),
+      EmailPage(_emailController, _emailErrorMessage, _validateEmail),
+      PasswordPage(_passwordController, _confirmPasswordController, _passwordErrorMessage),
     ];
   }
 
@@ -49,10 +53,43 @@ class _SignupState extends State<Signup> {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _nextPage() {
+    if (_currentPage == 0) {
+      // Validate username before proceeding
+      if (_usernameController.text.isEmpty) {
+        setState(() {
+          _usernameErrorMessage = 'Username is required';
+        });
+        return; // Stop navigation if username is empty
+      } else {
+        setState(() {
+          _usernameErrorMessage = ''; // Clear error if username is valid
+        });
+      }
+    } else if (_currentPage == 1) {
+      // Validate email before proceeding
+      if (_emailController.text.isEmpty) {
+        setState(() {
+          _emailErrorMessage = 'Email is required';
+        });
+        return; // Stop navigation if email is empty
+      } else if (!_isValidEmail(_emailController.text)) {
+        setState(() {
+          _emailErrorMessage = 'Please enter a valid email address';
+        });
+        return; // Stop navigation if email is invalid
+      } else {
+        setState(() {
+          _emailErrorMessage = ''; // Clear error if email is valid
+        });
+      }
+    }
+
+    // Navigate to the next page
     if (_currentPage < _pages.length - 1) {
       _currentPage++;
       _pageController.animateToPage(
@@ -72,9 +109,44 @@ class _SignupState extends State<Signup> {
         curve: Curves.ease,
       );
     } else {
-      // Navigate back to login page
       Navigator.pop(context);
     }
+  }
+
+  void _validateUsername(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _usernameErrorMessage = 'Username is required';
+      });
+    } else {
+      setState(() {
+        _usernameErrorMessage = '';
+      });
+    }
+  }
+
+  void _validateEmail(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _emailErrorMessage = 'Email is required';
+      });
+    } else if (!_isValidEmail(value)) {
+      setState(() {
+        _emailErrorMessage = 'Please enter a valid email address';
+      });
+    } else {
+      setState(() {
+        _emailErrorMessage = '';
+      });
+    }
+  }
+
+  bool _isValidEmail(String email) {
+    // Regular expression for validating email format
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email);
   }
 
   @override
@@ -88,7 +160,6 @@ class _SignupState extends State<Signup> {
           return Scaffold(
             body: Stack(
               children: [
-                // Background image
                 Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -97,7 +168,6 @@ class _SignupState extends State<Signup> {
                     ),
                   ),
                 ),
-                // Gradient overlay
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -110,11 +180,9 @@ class _SignupState extends State<Signup> {
                     ),
                   ),
                 ),
-                // Signup form
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Back arrow on UsernamePage
                     if (_currentPage == 0)
                       Padding(
                         padding: const EdgeInsets.only(top: 40.0, left: 16.0),
@@ -128,7 +196,14 @@ class _SignupState extends State<Signup> {
                         controller: _pageController,
                         itemCount: _pages.length,
                         itemBuilder: (context, index) {
-                          return _pages[index];
+                          // Update the pages with the latest error messages
+                          if (index == 0) {
+                            return UsernamePage(_usernameController, _usernameErrorMessage, _validateUsername);
+                          } else if (index == 1) {
+                            return EmailPage(_emailController, _emailErrorMessage, _validateEmail);
+                          } else {
+                            return PasswordPage(_passwordController, _confirmPasswordController, _passwordErrorMessage);
+                          }
                         },
                         onPageChanged: (index) {
                           setState(() {
@@ -144,36 +219,56 @@ class _SignupState extends State<Signup> {
                         child: ElevatedButton(
                           onPressed: _currentPage == _pages.length - 1
                               ? () {
-                                  context.read<SignUpBloc>().add(
-                                    SignUpButtonPressedEvent(
-                                      email: _emailController.text.trim(),
-                                      password: _passwordController.text.trim(),
-                                      username: _usernameController.text.trim(),
-                                    ),
-                                  );
-                                  // Show dialog for email verification
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text("Verify Your Email"),
-                                      content: Text("A verification email has been sent to ${_emailController.text.trim()}. Please verify before logging in."),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-  Navigator.pop(context); // Close the dialog
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => const LoginPage()), // Redirect to login page
-  );
-},
+                                  if (_passwordController.text.trim() !=
+                                      _confirmPasswordController.text.trim()) {
+                                    setState(() {
+                                      _passwordErrorMessage = 'Passwords do not match!';
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _passwordErrorMessage = '';
+                                    });
 
-                                          child: Text("OK"),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                    // Validate email again before sending for verification
+                                    if (!_isValidEmail(_emailController.text.trim())) {
+                                      setState(() {
+                                        _emailErrorMessage = 'Please enter a valid email address';
+                                      });
+                                      return;
+                                    }
+
+                                    context.read<SignUpBloc>().add(
+                                      SignUpButtonPressedEvent(
+                                        email: _emailController.text.trim(),
+                                        password: _passwordController.text.trim(),
+                                        username: _usernameController.text.trim(),
+                                      ),
+                                    );
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text("Verify Your Email"),
+                                        content: Text("A verification email has been sent to ${_emailController.text.trim()}. Please verify before logging in."),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => const LoginPage()),
+                                              );
+                                            },
+                                            child: Text("OK"),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
                                 }
-                              : _nextPage,
+                              : (_currentPage == 0 && _usernameErrorMessage.isEmpty) ||
+                                      (_currentPage == 1 && _emailErrorMessage.isEmpty)
+                                  ? _nextPage
+                                  : null,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                             shape: RoundedRectangleBorder(
@@ -209,16 +304,13 @@ class _SignupState extends State<Signup> {
   }
 }
 
-class UsernamePage extends StatefulWidget {
+class UsernamePage extends StatelessWidget {
   final TextEditingController usernameController;
-  
-  UsernamePage(this.usernameController);
+  final String errorMessage;
+  final Function(String) onValidate;
 
-  @override
-  _UsernamePageState createState() => _UsernamePageState();
-}
+  UsernamePage(this.usernameController, this.errorMessage, this.onValidate);
 
-class _UsernamePageState extends State<UsernamePage> {
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -241,7 +333,7 @@ class _UsernamePageState extends State<UsernamePage> {
             ),
             const SizedBox(height: 20),
             TextField(
-              controller: widget.usernameController,
+              controller: usernameController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.8),
@@ -251,7 +343,11 @@ class _UsernamePageState extends State<UsernamePage> {
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
+                errorText: errorMessage.isNotEmpty ? errorMessage : null,
               ),
+              onChanged: (value) {
+                onValidate(value);
+              },
             ),
           ],
         ),
@@ -260,16 +356,13 @@ class _UsernamePageState extends State<UsernamePage> {
   }
 }
 
-class EmailPage extends StatefulWidget {
+class EmailPage extends StatelessWidget {
   final TextEditingController emailController;
-  
-  EmailPage(this.emailController);
+  final String errorMessage;
+  final Function(String) onValidate;
 
-  @override
-  _EmailPageState createState() => _EmailPageState();
-}
+  EmailPage(this.emailController, this.errorMessage, this.onValidate);
 
-class _EmailPageState extends State<EmailPage> {
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -292,7 +385,7 @@ class _EmailPageState extends State<EmailPage> {
             ),
             const SizedBox(height: 20),
             TextField(
-              controller: widget.emailController,
+              controller: emailController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.8),
@@ -302,8 +395,12 @@ class _EmailPageState extends State<EmailPage> {
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
+                errorText: errorMessage.isNotEmpty ? errorMessage : null,
               ),
               keyboardType: TextInputType.emailAddress,
+              onChanged: (value) {
+                onValidate(value);
+              },
             ),
           ],
         ),
@@ -314,14 +411,32 @@ class _EmailPageState extends State<EmailPage> {
 
 class PasswordPage extends StatefulWidget {
   final TextEditingController passwordController;
-  
-  PasswordPage(this.passwordController);
+  final TextEditingController confirmPasswordController;
+  final String errorMessage;
+
+  PasswordPage(this.passwordController, this.confirmPasswordController, this.errorMessage);
 
   @override
   _PasswordPageState createState() => _PasswordPageState();
 }
 
 class _PasswordPageState extends State<PasswordPage> {
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+  String _errorMessage = '';
+
+  void _validatePasswords() {
+    if (widget.passwordController.text != widget.confirmPasswordController.text) {
+      setState(() {
+        _errorMessage = 'Passwords do not match!';
+      });
+    } else {
+      setState(() {
+        _errorMessage = '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -350,27 +465,59 @@ class _PasswordPageState extends State<PasswordPage> {
                 fillColor: Colors.white.withOpacity(0.8),
                 hintText: 'Password',
                 prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
               ),
-              obscureText: true,
+              obscureText: !_isPasswordVisible,
             ),
             const SizedBox(height: 20),
             TextField(
+              controller: widget.confirmPasswordController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.8),
                 hintText: 'Confirm Password',
                 prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                    });
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
               ),
-              obscureText: true,
+              obscureText: !_isConfirmPasswordVisible,
+              onChanged: (_) => _validatePasswords(),
             ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
           ],
         ),
       ),

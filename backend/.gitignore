@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.env
 
 # Virtual environment folder
 django_env/
@@ -31,5 +32,6 @@ node_modules/
 *.tmp
 config.json
 .env
+
 
 

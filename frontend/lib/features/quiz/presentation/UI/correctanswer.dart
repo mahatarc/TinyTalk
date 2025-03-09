@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:audioplayers/audioplayers.dart'; 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:tiny_talks/config.dart'; 
 
 class CorrectAnswer extends StatefulWidget {
   @override
   _CorrectAnswerState createState() => _CorrectAnswerState();
 }
 
+
 class _CorrectAnswerState extends State<CorrectAnswer> {
   Map<String, dynamic>? question;
-  int score = 0;  // Score will now persist
+  int score = 0;
   bool isAnswered = false;
   String selectedOption = '';
   String currentDifficulty = 'easy';
@@ -20,9 +22,9 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   int correctAnswers = 0;
   int totalQuestions = 0;
   bool levelCleared = false;
-  late AudioPlayer _audioPlayer; 
+  late AudioPlayer _audioPlayer;
   String audioUrl = '';
-  String audioImage = ''; 
+  String audioImage = '';
 
   @override
   void initState() {
@@ -42,13 +44,13 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   Future<void> _loadScore() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      score = prefs.getInt('quiz_score') ?? 0;  // Load saved score
+      score = prefs.getInt('quiz_score') ?? 0;
     });
   }
 
   Future<void> _saveScore() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('quiz_score', score);  // Save the updated score
+    prefs.setInt('quiz_score', score);
   }
 
   Future<void> fetchQuestion() async {
@@ -64,7 +66,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.5:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
+        Uri.parse('${AppConfig.baseUrl}/api/adaptive_quiz/?difficulty=$currentDifficulty'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -77,8 +79,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             selectedOption = '';
             totalQuestions++;
 
-            audioUrl = question?['audio'] ?? ''; 
-            audioImage = question?['image'] ?? ''; 
+            audioUrl = question?['audio'] ?? '';
+            audioImage = question?['image'] ?? '';
           });
         } else {
           _showLevelClearedMessage();
@@ -111,12 +113,12 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
         score += 10;
         correctAnswers++;
       });
-      _saveScore();  // Save the updated score
+      _saveScore();
     }
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.5:8000/api/answer/'),
+        Uri.parse('${AppConfig.baseUrl}/api/answer/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${await _getAccessToken()}',
@@ -164,14 +166,15 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       levelCleared = true;
     });
 
+    // Show dialog
     showDialog(
       context: context,
       builder: (context) {
-       return AlertDialog(
+        return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          contentPadding: EdgeInsets.zero, 
+          contentPadding: EdgeInsets.zero,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -180,30 +183,28 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: 60, 
+                    height: 60,
                     decoration: BoxDecoration(
                       color: Color.fromARGB(255, 124, 151, 119),
                       borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                     ),
                   ),
                   CircleAvatar(
-                    backgroundColor: Colors.white, 
+                    backgroundColor: Colors.white,
                     radius: 35,
                     child: CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('images/cong.png'), 
+                      backgroundImage: AssetImage('images/cong.png'),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10),
-
               Text(
                 "Congratulations!",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Text(
@@ -213,14 +214,18 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 ),
               ),
               SizedBox(height: 20),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  increaseDifficulty();
-                  fetchQuestion();
-                },
-                child: Text("Proceed", style: TextStyle(fontSize: 18)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      increaseDifficulty();
+                      fetchQuestion();
+                    },
+                    child: Text("Proceed", style: TextStyle(fontSize: 18)),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
             ],
@@ -228,6 +233,21 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
         );
       },
     );
+
+    // Debug log
+    print("Current difficulty: $currentDifficulty");
+
+    // Show results only when user has completed "hard" difficulty
+    if (currentDifficulty == 'hard') {
+      print("Hard mode completed! Navigating to results screen.");
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => QuizCompletionScreen(totalScore: score),
+        ),
+      );
+    }
   }
 
   void increaseDifficulty() {
@@ -285,12 +305,11 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     }
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, ),
-          extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      extendBodyBehindAppBar: true,
       body: Container(
-          width: double.infinity,
+        width: double.infinity,
         height: double.infinity,
-
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -298,9 +317,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             fit: BoxFit.cover,
           ),
         ),
-
         child: Padding(
-                  padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
               if (question?['image'] != null)
@@ -317,6 +335,22 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class QuizCompletionScreen extends StatelessWidget {
+  final int totalScore;
+
+  QuizCompletionScreen({required this.totalScore});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Quiz Completed")),
+      body: Center(
+        child: Text("Your Total Score: $totalScore", style: TextStyle(fontSize: 30)),
       ),
     );
   }
