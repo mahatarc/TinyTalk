@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_talks/features/alphabets/presentation/UI/Sworbarna.dart';
 import 'package:tiny_talks/features/alphabets/presentation/UI/alphabet.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
 //import 'package:tiny_talks/features/alphabets/presentation/UI/stage.dart';
 import 'package:tiny_talks/features/numbers/presentation/UI/numbers.dart';
 
@@ -18,7 +19,10 @@ class Course extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white), // White for visibility
           onPressed: () {
-            Navigator.of(context).pop();
+           Navigator.pushReplacement(
+              context,
+               MaterialPageRoute(builder: (context) => const Home()),
+           );
           },
         ),
       ),

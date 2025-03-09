@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import the package to lock orientation
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart';
 import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
@@ -24,7 +25,11 @@ class Home extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white), // White for visibility
           onPressed: () {
-            Navigator.of(context).pop();
+            //Navigator.of(context).pop();
+            Navigator.pushReplacement(
+              context,
+               MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
           },
         ),
       ),
