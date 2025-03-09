@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'LangApp',
-    'corsheaders'
+    'corsheaders',
+    'asr_app'
 ]
 
 # Middleware

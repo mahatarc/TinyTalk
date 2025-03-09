@@ -1,3 +1,9 @@
 {
-    "cmake.sourceDirectory": "C:/Users/aarat/TinyTalk/frontend/linux"
+    "cmake.sourceDirectory": "C:/Users/aarat/TinyTalk/frontend/linux",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/backend",
+        "${workspaceFolder}/backend/LangProject"
+    ],
+    "python.defaultInterpreterPath": "C:/Users/aarat/AppData/Local/Programs/Python/Python312/python.exe"
 }

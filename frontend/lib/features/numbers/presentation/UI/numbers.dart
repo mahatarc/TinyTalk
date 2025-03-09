@@ -117,7 +117,7 @@ Future<void> _stopRecording() async {
 
 
 Future<void> _evaluateSpeech(File audioFile) async {
- const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech/";
+ const String apiUrl = "http://192.168.1.72:8000/api/deploy/evaluate_speech/";
   // const String apiUrl = "http://172.16.11.29:8000/api/deploy/evaluate_speech/";
   //const String apiUrl = "http://192.168.1.5:8000/api/deploy/evaluate_speech/";
 

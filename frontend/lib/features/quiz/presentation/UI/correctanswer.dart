@@ -64,7 +64,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.9:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
+        Uri.parse('http://192.168.1.72:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -116,7 +116,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.9:8000/api/answer/'),
+        Uri.parse('http://192.168.1.72:8000/api/answer/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${await _getAccessToken()}',
