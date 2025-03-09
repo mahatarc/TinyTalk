@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:audioplayers/audioplayers.dart'; 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:tiny_talks/config.dart'; 
 
 class CorrectAnswer extends StatefulWidget {
   @override
@@ -12,7 +13,8 @@ class CorrectAnswer extends StatefulWidget {
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
   Map<String, dynamic>? question;
-  int score = 0;  // Score will now persist
+  // int score = 0;
+  String latest_score = '0';
   bool isAnswered = false;
   String selectedOption = '';
   String currentDifficulty = 'easy';
@@ -20,16 +22,21 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   int correctAnswers = 0;
   int totalQuestions = 0;
   bool levelCleared = false;
-  late AudioPlayer _audioPlayer; 
+  late AudioPlayer _audioPlayer;
   String audioUrl = '';
-  String audioImage = ''; 
+  String audioImage = '';
+
+  // Track rewards for each difficulty
+  int easyReward = 0;
+  int mediumReward = 0;
+  int hardReward = 0;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     _initializeDifficulty();
-    _loadScore();
+    // _loadScore();
     fetchQuestion();
   }
 
@@ -39,17 +46,17 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     prefs.setString('difficulty', currentDifficulty);
   }
 
-  Future<void> _loadScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      score = prefs.getInt('quiz_score') ?? 0;  // Load saved score
-    });
-  }
+  // Future<void> _loadScore() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     score = prefs.getInt('quiz_score') ?? 0;
+  //   });
+  // }
 
-  Future<void> _saveScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('quiz_score', score);  // Save the updated score
-  }
+  // Future<void> _saveScore() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   prefs.setInt('quiz_score', score);
+  // }
 
   Future<void> fetchQuestion() async {
     if (levelCleared) return;
@@ -64,7 +71,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.72:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
+        Uri.parse('${AppConfig.baseUrl}/api/adaptive_quiz/?difficulty=$currentDifficulty'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -77,8 +84,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             selectedOption = '';
             totalQuestions++;
 
-            audioUrl = question?['audio'] ?? ''; 
-            audioImage = question?['image'] ?? ''; 
+            audioUrl = question?['audio'] ?? '';
+            audioImage = question?['image'] ?? '';
           });
         } else {
           _showLevelClearedMessage();
@@ -108,15 +115,15 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     if (isCorrect) {
       setState(() {
-        score += 10;
+        // score += 10;
         correctAnswers++;
       });
-      _saveScore();  // Save the updated score
+      // _saveScore();
     }
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.72:8000/api/answer/'),
+        Uri.parse('${AppConfig.baseUrl}/api/answer/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${await _getAccessToken()}',
@@ -149,6 +156,34 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString("access_token");
   }
+    Future<Map<String, String>> fetchProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString("access_token");
+
+    if (accessToken == null) {
+      return {"error": "No access token found"};
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.1.2:8000/profile/'),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        return {
+          "username": data['username'] ?? 'Unknown User',
+          "email": data['email'] ?? 'No email available',
+          "latest_score": data['latest_score']?.toString() ?? '0',
+        };
+      } else {
+        return {"error": "Failed to load profile"};
+      }
+    } catch (e) {
+      return {"error": "Network error: ${e.toString()}"};
+    }
+  }
 
   void nextQuestion() {
     setState(() {
@@ -164,14 +199,33 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       levelCleared = true;
     });
 
+ // Fetch latest score
+    Map<String, String> profileData = await fetchProfile();
+    setState(() {
+      latest_score = profileData['latest_score'] ?? '0'; // Set the latest score from the profile data
+    });
+
+    // // Update the reward based on the difficulty
+    // if (currentDifficulty == 'easy') {
+    //   easyReward = score;  // Assuming the score is the reward for that level
+    // } else if (currentDifficulty == 'medium') {
+    //   mediumReward = score;
+    // } else if (currentDifficulty == 'hard') {
+    //   hardReward = score;
+    // }
+
+    // Show dialog
     showDialog(
       context: context,
+       barrierDismissible: false,
       builder: (context) {
-       return AlertDialog(
+        return AlertDialog(
+          
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          contentPadding: EdgeInsets.zero, 
+          
+          contentPadding: EdgeInsets.zero,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -180,47 +234,61 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: 60, 
+                    height: 60,
                     decoration: BoxDecoration(
                       color: Color.fromARGB(255, 124, 151, 119),
                       borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                     ),
                   ),
                   CircleAvatar(
-                    backgroundColor: Colors.white, 
+                    backgroundColor: Colors.white,
                     radius: 35,
                     child: CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('images/cong.png'), 
+                      backgroundImage: AssetImage('images/cong.png'),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10),
-
               Text(
                 "Congratulations!",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Text(
-                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
+                  currentDifficulty == 'hard'
+                      ? "You have completed all levels!\n Your total score till now is: $latest_score"
+                      : "You have cleared $currentDifficulty level.\nYour total score till now is: $latest_score\nProceed to the next level.",
                   style: TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(height: 20),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  increaseDifficulty();
-                  fetchQuestion();
-                },
-                child: Text("Proceed", style: TextStyle(fontSize: 18)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      if (currentDifficulty == 'hard') {
+                        // After hard level, show the total rewards screen
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => QuizCompletionScreen(totalScore: int.parse(latest_score)),
+                          ),
+                        );
+                      } else {
+                        increaseDifficulty();
+                        fetchQuestion();
+                      }
+                    },
+                    child: Text("Proceed", style: TextStyle(fontSize: 18)),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
             ],
@@ -236,6 +304,12 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       questionIndex = 0;
       levelCleared = false;
     });
+    // After clearing easy, medium, or hard, increase difficulty.
+    if (currentDifficulty == 'easy') {
+      currentDifficulty = 'medium';
+    } else if (currentDifficulty == 'medium') {
+      currentDifficulty = 'hard';
+    }
   }
 
   Widget _buildOption(String option) {
@@ -285,12 +359,11 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     }
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, ),
-          extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      extendBodyBehindAppBar: true,
       body: Container(
-          width: double.infinity,
+        width: double.infinity,
         height: double.infinity,
-
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -298,9 +371,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             fit: BoxFit.cover,
           ),
         ),
-
         child: Padding(
-                  padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
               if (question?['image'] != null)
@@ -320,4 +392,258 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       ),
     );
   }
+}
+
+class QuizCompletionScreen extends StatefulWidget {
+  final int totalScore;
+
+  QuizCompletionScreen({required this.totalScore});
+
+  @override
+  _QuizCompletionScreenState createState() => _QuizCompletionScreenState();
+}
+
+class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
+  // Variables to hold the state of the quiz, such as the current question, difficulty, etc.
+  var question;
+  String latest_score = '0';
+  String currentDifficulty = 'easy';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, 
+        elevation: 0, 
+      ),
+      extendBodyBehindAppBar: true,
+
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/bgggg.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 70,
+                  backgroundColor: Colors.white.withOpacity(0.7),
+                  child: Icon(
+                    Icons.star_rounded, 
+                    size: 70, 
+                    color: Colors.yellow.shade700,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Congratulations!",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 22, 129, 17),
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Your Total Score:",
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Color.fromARGB(255, 22, 129, 17),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '${widget.totalScore}',
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.yellow.shade700,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(2, 2),
+                        blurRadius: 8,
+                        color: Colors.black.withOpacity(0.4),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _restartQuiz,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text("Restart Quiz"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                   
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Back to Home",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                SizedBox(height: 20),
+                
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+Future<void> _restartQuiz() async {
+  // Show a confirmation dialog before restarting the quiz
+  bool? shouldRestart = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        contentPadding: EdgeInsets.zero,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 233, 83, 83),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                  ),
+                ),
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 35,
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage('images/alert.png'),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Warning!",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Text(
+                "You will lose all your progress. \n \n Are you sure you want to continue?",
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 20),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); 
+            },
+            child: Text("Continue"),
+          ),
+        ],
+      );
+    },
+  );
+
+  // If the user confirmed, restart the quiz
+  if (shouldRestart == true) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString("access_token");
+
+    if (accessToken == null) {
+      print('No access token found');
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.2:8000/api/restart_quiz/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+
+        setState(() {
+          question = null;
+          latest_score = data['latest_score'].toString();
+          currentDifficulty = data['last_difficulty'];
+          List<dynamic> questions = data['questions'];
+          if (questions.isNotEmpty) {
+            question = questions[0];
+          }
+        });
+
+        // Show a success message (Snackbar)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Quiz has been restarted successfully! Go ahead and do the quiz again."),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        throw Exception('Failed to restart quiz');
+      }
+    } catch (e) {
+      print("Error restarting quiz: $e");
+
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to restart quiz. Please try again."),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  } else {
+   
+    print("Quiz restart canceled.");
+  }
+}
+
+
+
 }
