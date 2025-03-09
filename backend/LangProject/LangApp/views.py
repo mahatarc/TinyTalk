@@ -424,8 +424,7 @@ class UserProgressAPIView(APIView):
     
 class RestartQuizAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
-<<<<<<< HEAD
+    
     def post(self, request):
         user = request.user
         user_progress, _ = UserProgress.objects.get_or_create(user=user)
@@ -457,6 +456,3 @@ class RestartQuizAPIView(APIView):
             "latest_score": user_progress.latest_score,
             "questions": question_data  # Return easy-level questions
         })
-=======
-
->>>>>>> arch_tinytalk

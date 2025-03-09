@@ -16,7 +16,7 @@ from rest_framework.decorators import api_view
 # MODEL_PATH = os.path.expanduser("~/Documents/Tiny Talk/TinyTalk/fine_tuned_model/fine_tuned_model")
 
  # Update this path if needed
-MODEL_PATH = "D:/Major_Project/TinyTalkProject/fine_tuned_model"  # Update this path if needed
+MODEL_PATH = "D:/TinyTalk/fine_tuned_model"  # Update this path if needed
 processor = Wav2Vec2Processor.from_pretrained(MODEL_PATH)
 model = Wav2Vec2ForSequenceClassification.from_pretrained(MODEL_PATH)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -14,10 +14,3 @@ urlpatterns = [
     path('restart_quiz/', RestartQuizAPIView.as_view(), name='restart_quiz'),
 
 ]
-
-<<<<<<< HEAD
-
-]
-
-=======
->>>>>>> arch_tinytalk
