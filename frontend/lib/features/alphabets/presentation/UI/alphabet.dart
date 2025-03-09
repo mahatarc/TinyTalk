@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:tiny_talks/config.dart';
+import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
 
 class AlphabetPage extends StatefulWidget {
   final int startLetterIndex;
@@ -187,15 +188,27 @@ class _AlphabetPageState extends State<AlphabetPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back, color: Colors.black),
+    onPressed: () {
+      if (widget.startLetterIndex == 0) {
+        // If on the first page, navigate to the Course page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Course(), // Navigate to the Course page
+          ),
+        );
+      } else {
+        // If not on the first page, just pop the current page
+        Navigator.of(context).pop();
+      }
+    },
+  ),
+),
+
       body: Stack(
         children: [
           // Background image
@@ -244,7 +257,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
             bottom: 20.0, // Adjust to place it right at the bottom
             right: 20.0, // Adjust to place it at the right
             child: InkWell(
-              onTap: isLastAlphabetInStage
+              /*onTap: isLastAlphabetInStage
                   ? widget.onFinish // Trigger onFinish when it's the last alphabet
                   : () {
                       Navigator.push(
@@ -256,7 +269,35 @@ class _AlphabetPageState extends State<AlphabetPage> {
                           ),
                         ),
                       );
-                    },
+                    },*/
+             onTap: () {
+               if (widget.startLetterIndex == _alphabets.length - 1) {
+               // Restart from the first letter when reaching the last one
+               Navigator.pushAndRemoveUntil(
+                 context,
+                 MaterialPageRoute(
+                   builder: (context) => AlphabetPage(
+                     startLetterIndex: 0, 
+                     onFinish: widget.onFinish,
+                   ),
+                  ),
+                  (route) => false,  // This will remove all previous pages from the stack
+                );
+              } else {
+                // Move to the next letter
+                Navigator.push(
+                 context,
+                 MaterialPageRoute(
+                    builder: (context) => AlphabetPage(
+                      startLetterIndex: widget.startLetterIndex + 1,
+                      onFinish: widget.onFinish,
+                    ),
+                 ),
+               );
+             }
+            },
+
+      
               child: Image.asset(
                 'images/play.png', // Your image for the button bac kground
                 width: 120.0, // Adjust the size
