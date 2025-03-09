@@ -19,95 +19,95 @@ questions = [
     {
         "image": "images/cat.png",
         "question_text": "Identify from the picture:",
-        "options": ["cat"   , "dog", "केरा", "आप"],
-        "answer": "cat",
+        "options": ["बिरालो", "कुकुर", "केरा", "आप"],
+        "answer": "बिरालो",
         "difficulty": "easy",
     },
     {
         "image": "images/dog.png",
         "question_text": "Identify from the picture:",
-        "options": ["cat", "dog", "केरा", "आप"],
-        "answer": "dog",
+        "options": ["बिरालो", "कुकुर", "केरा", "आप"],
+        "answer": "कुकुर",
         "difficulty": "easy",
     },
 
-# medium
+    # medium
     {
         "image": "images/quiz_1.png",
         "question_text": "Identify from the picture:",
-        "options": ['९', '१', '८', '६'],
-         "answer": '१',
+        "options": ['३', '१', '८', '६'],
+        "answer": '१',
         "difficulty": "medium",
-    },   
+    },
 
     {
         "image": "images/quiz_2.png",
         "question_text": "Identify from the picture:",
-      "options": ['९', '२', '८', '६'],
-      "answer": '२',
+        "options": ['९', '२', '८', '६'],
+        "answer": '२',
         "difficulty": "medium",
-    },    
+    },
 
     {
         "image": "images/quiz_3.png",
         "question_text": "Identify from the picture:",
         "options": ['३', '१', '८', '६'],
-         "answer": '३',
+        "answer": '३',
         "difficulty": "medium",
-    },    
+    },
 
     {
         "image": "images/quiz_4.png",
         "question_text": "Identify from the picture:",
-        "options": ['९', '१', '४', '६'],
+        "options": ['३', '१', '४', '६'],
         "answer": '४',
         "difficulty": "medium",
-    },    
+    },
 
-# hard
+    # hard
     {
-      "image": "images/woodspeaker.png",
-      "audio": "audio/0.wav",
-      "question": "Identify the sound:",
-      "options": ["०" , '४', '८', '२'],
-      "answer": '० ',
-      "difficulty": "hard",
+        "image": "images/woodspeaker.png",
+        "audio": "audio/0.wav",
+        "question_text": "Identify the sound:",
+        "options": ["०", '४', '८', '२'],
+        "answer": '०',
+        "difficulty": "hard",
     },
 
     {
-      "image": "images/woodspeaker.png",
-      "audio": "audio/1.wav",
-      "question": 'Identify the sound:',
-      "options": ['९', '१', '८', '६'],
-      "answer": '१',
-      "difficulty": "hard",
-    },
-    
-    {
-      "image": "images/woodspeaker.png",
-      "audio": "audio/2.wav",
-      "question": 'Identify the sound:',
-      "options": ['९', '२', '८', '६'],
-      "answer": '२',
-      "difficulty": "hard",
+        "image": "images/woodspeaker.png",
+        "audio": "audio/1.wav",
+        "question_text": 'Identify the sound:',
+        "options": ['३', '१', '८', '६'],
+        "answer": '१',
+        "difficulty": "hard",
     },
 
     {
-      "image": "images/woodspeaker.png",
-      "audio": "audio/3.wav",
-      "question": 'Identify the sound:',
-      "options": ['३', '१', '८', '६'],
-      "answer": '३',
-      "difficulty": "hard",
+        "image": "images/woodspeaker.png",
+        "audio": "audio/2.wav",
+        "question_text": 'Identify the sound:',
+        "options": ['९', '२', '८', '६'],
+        "answer": '२',
+        "difficulty": "hard",
     },
 
     {
-      "image": "images/woodspeaker.png",
-      "audio": "audio/4.wav",
-      "question": 'Identify the sound:',
-      "options": ['९', '१', '४', '६'],
-      "answer": '४',
-      "difficulty": "hard",
+        "image": "images/woodspeaker.png",
+        "audio": "audio/3.wav",
+        "question_text": 'Identify the sound:',
+        "options": ['३', '१', '८', '६'],
+        "answer": '३',
+        "difficulty": "hard",
+    },
+
+    {
+        "image": "images/woodspeaker.png",
+        "audio": "audio/4.wav",
+        "question_text": 'Identify the sound:',
+        "options": ['९', '१', '४', '६'],
+        "answer": '४',
+        "difficulty": "hard",
     },
 ]
 
@@ -120,17 +120,17 @@ def seed_database():
                 Question.objects.create(
                     audio=q["audio"],
                     image=q["image"],
-                    question_text=q["question"],
+                    question_text=q["question_text"],  # Corrected key here
                     options=q["options"],
                     answer=q["answer"],
                     difficulty=q["difficulty"]
                 )
-                print(f"Added audio question: {q['question']}")
+                print(f"Added audio question: {q['question_text']}")
         elif q.get("image"):
             if not Question.objects.filter(image=q["image"]).exists():
                 Question.objects.create(
                     image=q["image"],
-                    question_text=q["question_text"],
+                    question_text=q["question_text"],  # Corrected key here
                     options=q["options"],
                     answer=q["answer"],
                     difficulty=q["difficulty"]
