@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_talks/features/alphabets/presentation/UI/Sworbarna.dart';
-import 'package:tiny_talks/features/alphabets/presentation/UI/stage.dart';
+import 'package:tiny_talks/features/alphabets/presentation/UI/alphabet.dart';
+//import 'package:tiny_talks/features/alphabets/presentation/UI/stage.dart';
 import 'package:tiny_talks/features/numbers/presentation/UI/numbers.dart';
 
 class Course extends StatelessWidget {
@@ -55,7 +56,14 @@ class Course extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>  StagesScreen()),
+                          MaterialPageRoute(builder: (context) => AlphabetPage(
+                           startLetterIndex: 0, // Or set the starting index as needed
+                           onFinish: () {
+                          // Define what should happen when finished
+                           print('Finished the alphabet lesson');
+                            // You can navigate to another page or show a dialog
+                           }, 
+                          )),
                         );
                       },
                       backgroundImage: 'images/h1.png',
