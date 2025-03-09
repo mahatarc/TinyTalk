@@ -19,5 +19,5 @@ urlpatterns = [
     path('api/adaptive_quiz/', AdaptiveQuizAPIView.as_view(), name='adaptive_quiz'),
     path('api/answer/', AnswerQuizAPIView.as_view(), name='answer'),
     path('api/progress/', UserProgressAPIView.as_view(), name='progress'),
-
 ]
+

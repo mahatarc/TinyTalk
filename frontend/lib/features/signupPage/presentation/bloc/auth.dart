@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 
 class SignupService {
 
+//   final String apiUrl = "http://192.168.1.70:8000/api/signup/";
+
   //final String apiUrl = "http://192.168.1.72:8000/api/signup/";
 
   final String apiUrl = "http://192.168.1.9:8000/api/signup/";
@@ -47,3 +49,5 @@ class SignupService {
     }
   }
 }
+ 
+
