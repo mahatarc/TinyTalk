@@ -199,43 +199,49 @@ class PasswordResetConfirmView(View):
 
         return JsonResponse({"message": "Password has been reset successfully."}, status=200)
 
-
 class AdaptiveQuizAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
         user_progress, _ = UserProgress.objects.get_or_create(user=user)
-        last_difficulty = user_progress.last_difficulty
-        
-        # Fetch questions of the user's current difficulty level
-        questions = Question.objects.filter(difficulty=last_difficulty)
-        correctly_answered_questions = user_progress.correct_questions.filter(difficulty=last_difficulty)
-        
+
+        # Get difficulty from request (fallback to last_difficulty)
+        requested_difficulty = request.query_params.get('difficulty', user_progress.last_difficulty)
+
+        # Update user's last_difficulty if requested explicitly
+        if requested_difficulty != user_progress.last_difficulty:
+            user_progress.last_difficulty = requested_difficulty
+            user_progress.save()
+
+        # Fetch questions based on requested difficulty
+        questions = Question.objects.filter(difficulty=requested_difficulty)
+        correctly_answered_questions = user_progress.correct_questions.filter(difficulty=requested_difficulty)
+
         if correctly_answered_questions.count() == questions.count() and questions.count() > 0:
-            next_difficulty = self.get_next_difficulty(last_difficulty)
+            next_difficulty = self.get_next_difficulty(requested_difficulty)
             user_progress.last_difficulty = next_difficulty
             user_progress.save()
             return Response({
                 "message": "Congratulations! You have completed all questions at this difficulty.",
                 "next_difficulty": next_difficulty
             })
-        
-        unanswered_questions = questions.exclude(id__in=correctly_answered_questions.values_list('id', flat=True))
-        
+
+        unanswered_questions = questions.exclude(id__in=user_progress.correct_questions.values_list('id', flat=True))
+
         if not unanswered_questions.exists():
             return Response({"message": "No more questions available for this difficulty."}, status=404)
-        
+
         # Pick a random unanswered question
         question = unanswered_questions.order_by('?').first()
+
         serializer = QuestionSerializer(question)
         return Response(serializer.data)
-    
+
     def get_next_difficulty(self, current_difficulty):
         difficulty_order = ['easy', 'medium', 'hard']
         current_index = difficulty_order.index(current_difficulty)
         return difficulty_order[min(current_index + 1, len(difficulty_order) - 1)]
-
 
 class AnswerQuizAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -250,30 +256,34 @@ class AnswerQuizAPIView(APIView):
         question = get_object_or_404(Question, id=question_id)
         user = request.user
         user_progress, _ = UserProgress.objects.get_or_create(user=user)
-        
+
         correct = user_answer.strip().lower() == question.answer.strip().lower()
-        
+
         if correct:
+            # Avoid duplicate entries
             if not user_progress.correct_questions.filter(id=question.id).exists():
                 user_progress.correct_answers += 1
                 user_progress.correct_questions.add(question)
-                user_progress.latest_score += 10  # Increase score for correct answer
+
+                # Add 10 points for correct answer
+                user_progress.latest_score += 10
         else:
             if not user_progress.incorrect_questions.filter(id=question.id).exists():
                 user_progress.incorrect_answers += 1
                 user_progress.incorrect_questions.add(question)
-        
+
         user_progress.total_answers += 1
         user_progress.save()
 
+        # Return the updated score, current difficulty, and the question's image/audio info
         return Response({
             "message": "Correct!" if correct else "Incorrect.",
             "correct_answer": question.answer,
             "current_difficulty": user_progress.last_difficulty,
-            "latest_score": user_progress.latest_score,
+            "latest_score": user_progress.latest_score,  # Return updated score
             "question_data": {
-                "image": question.image.url if question.image else None,
-                "audio": question.audio.url if question.audio else None,
+                "image": question.image,
+                "audio": question.audio,
                 "question_text": question.question_text,
                 "options": question.options,
             }
@@ -294,5 +304,3 @@ class UserProgressAPIView(APIView):
             "total_answers": user_progress.total_answers,
             "last_difficulty": user_progress.last_difficulty
         })
-
-
