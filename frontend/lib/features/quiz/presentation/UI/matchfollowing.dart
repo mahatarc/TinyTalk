@@ -70,7 +70,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                 margin: const EdgeInsets.only(bottom: 20),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 141, 225, 96),
+                  color: const Color.fromARGB(201, 96, 196, 101),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
@@ -79,7 +79,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
               ),
@@ -89,9 +89,9 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                         child: Container(
                           width: 250,
                           decoration: BoxDecoration(
-                            color: Colors.purple.shade100,
+                            color: const Color.fromARGB(255, 183, 249, 147),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.purple, width: 4),
+                            border: Border.all(color: const Color.fromARGB(255, 121, 210, 72), width: 4),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black54,
@@ -111,7 +111,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                 style: TextStyle(
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.purple,
+                                  color: Color.fromARGB(255, 88, 123, 49),
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -121,7 +121,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                                  color: Color.fromARGB(255, 88, 123, 49),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -132,7 +132,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.purple,
+                                  backgroundColor: const Color.fromARGB(201, 96, 196, 101),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -213,7 +213,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                                   : const Color.fromARGB(255, 174, 230, 110),
                                               borderRadius: BorderRadius.circular(12),
                                               border: Border.all(
-                                                color: Colors.deepPurple,
+                                                color: const Color.fromARGB(255, 107, 211, 81),
                                                 width: 2,
                                               ),
                                             ),
@@ -223,7 +223,7 @@ class _MatchFollowingGameState extends State<MatchFollowingGame> {
                                               style: const TextStyle(
                                                 fontSize: 30,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.deepPurple,
+                                                color: Color.fromARGB(255, 50, 46, 46),
                                               ),
                                             ),
                                           );
