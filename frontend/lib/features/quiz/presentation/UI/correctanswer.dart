@@ -12,6 +12,8 @@ class CorrectAnswer extends StatefulWidget {
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
   Map<String, dynamic>? question;
+  // int score = 0;
+  String latest_score = '0';
   bool isAnswered = false;
   String selectedOption = '';
   String currentDifficulty = 'easy';
@@ -22,13 +24,18 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   late AudioPlayer _audioPlayer;
   String audioUrl = '';
   String audioImage = '';
-  String latest_score = '0';
+
+  // Track rewards for each difficulty
+  int easyReward = 0;
+  int mediumReward = 0;
+  int hardReward = 0;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     _initializeDifficulty();
+    // _loadScore();
     fetchQuestion();
   }
 
@@ -38,7 +45,17 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     prefs.setString('difficulty', currentDifficulty);
   }
 
+  // Future<void> _loadScore() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     score = prefs.getInt('quiz_score') ?? 0;
+  //   });
+  // }
 
+  // Future<void> _saveScore() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   prefs.setInt('quiz_score', score);
+  // }
 
   Future<void> fetchQuestion() async {
     if (levelCleared) return;
@@ -66,8 +83,8 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
             selectedOption = '';
             totalQuestions++;
 
-            audioUrl = question?['audio'] ?? ''; 
-            audioImage = question?['image'] ?? ''; 
+            audioUrl = question?['audio'] ?? '';
+            audioImage = question?['image'] ?? '';
           });
         } else {
           _showLevelClearedMessage();
@@ -97,15 +114,15 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     if (isCorrect) {
       setState(() {
-  
+        // score += 10;
         correctAnswers++;
       });
-     
+      // _saveScore();
     }
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.2:8000/api/answer/'),
+        Uri.parse('http://192.168.1.2:8000//api/answer/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${await _getAccessToken()}',
@@ -138,7 +155,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString("access_token");
   }
-  Future<Map<String, String>> fetchProfile() async {
+    Future<Map<String, String>> fetchProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString("access_token");
 
@@ -181,12 +198,22 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       levelCleared = true;
     });
 
- // Fetch profile to get the latest score
+ // Fetch latest score
     Map<String, String> profileData = await fetchProfile();
     setState(() {
       latest_score = profileData['latest_score'] ?? '0'; // Set the latest score from the profile data
     });
 
+    // // Update the reward based on the difficulty
+    // if (currentDifficulty == 'easy') {
+    //   easyReward = score;  // Assuming the score is the reward for that level
+    // } else if (currentDifficulty == 'medium') {
+    //   mediumReward = score;
+    // } else if (currentDifficulty == 'hard') {
+    //   hardReward = score;
+    // }
+
+    // Show dialog
     showDialog(
       context: context,
       builder: (context) {
@@ -220,30 +247,44 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 ],
               ),
               SizedBox(height: 10),
-
               Text(
                 "Congratulations!",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Text(
-                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $latest_score\nProceed to the next level.",
+                  currentDifficulty == 'hard'
+                      ? "You have completed all levels!\n Your total score till now is: $latest_score"
+                      : "You have cleared $currentDifficulty level.\nYour total score till now is: $latest_score\nProceed to the next level.",
                   style: TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(height: 20),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  increaseDifficulty();
-                  fetchQuestion();
-                },
-                child: Text("Proceed", style: TextStyle(fontSize: 18)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      if (currentDifficulty == 'hard') {
+                        // After hard level, show the total rewards screen
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => QuizCompletionScreen(totalScore: int.parse(latest_score)),
+                          ),
+                        );
+                      } else {
+                        increaseDifficulty();
+                        fetchQuestion();
+                      }
+                    },
+                    child: Text("Proceed", style: TextStyle(fontSize: 18)),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
             ],
@@ -259,6 +300,12 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
       questionIndex = 0;
       levelCleared = false;
     });
+    // After clearing easy, medium, or hard, increase difficulty.
+    if (currentDifficulty == 'easy') {
+      currentDifficulty = 'medium';
+    } else if (currentDifficulty == 'medium') {
+      currentDifficulty = 'hard';
+    }
   }
 
   Widget _buildOption(String option) {
@@ -308,7 +355,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     }
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent,),
+      appBar: AppBar(backgroundColor: Colors.transparent),
       extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,
@@ -336,6 +383,107 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
                 ...question!['options'].map<Widget>((opt) => _buildOption(opt)).toList(),
               if (isAnswered) ElevatedButton(onPressed: nextQuestion, child: Text("Next")),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class QuizCompletionScreen extends StatelessWidget {
+  final int totalScore;
+
+  QuizCompletionScreen({required this.totalScore});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // title: Text("Quiz Completed"),
+        backgroundColor: Colors.transparent, 
+        elevation: 0, 
+      ),
+            extendBodyBehindAppBar: true,
+
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/bgggg.jpg'), // Replace with your background image
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 70,
+                  backgroundColor: Colors.white.withOpacity(0.7),
+                  child: Icon(
+                    Icons.star_rounded, 
+                    size: 70, 
+                    color: Colors.yellow.shade700,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Congratulations!",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 22, 129, 17),
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Your Total Score:",
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Color.fromARGB(255, 22, 129, 17),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '$totalScore',
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.yellow.shade700,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(2, 2),
+                        blurRadius: 8,
+                        color: Colors.black.withOpacity(0.4),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Add your next action here, for example, navigate to home screen
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Back to Home",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
