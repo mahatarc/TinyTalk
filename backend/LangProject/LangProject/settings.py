@@ -4,7 +4,17 @@ import os
 from decouple import config
 from datetime import timedelta
 
+# Base Directory
+BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load config.json (if exists)
+config_path = os.path.join(BASE_DIR, "config.json")
+if os.path.exists(config_path):
+    with open(config_path) as config_file:
+        config_data = json.load(config_file)
+else:
+    config_data = {}
+    
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
@@ -25,21 +35,11 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_confirm.html'
 
-# Base Directory
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Load config.json (if exists)
-config_path = os.path.join(BASE_DIR, "config.json")
-if os.path.exists(config_path):
-    with open(config_path) as config_file:
-        config = json.load(config_file)
-else:
-    config = {}
 
 # Security and Debugging
-SECRET_KEY = config.get("SECRET_KEY", "fallback-secret-key")
-DEBUG = config.get("DEBUG", True)
-ALLOWED_HOSTS = config.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
+SECRET_KEY = config_data.get("SECRET_KEY", "fallback-secret-key")
+DEBUG = config_data.get("DEBUG", True)
+ALLOWED_HOSTS = config_data.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
 
 # Installed Applications
 INSTALLED_APPS = [
@@ -69,24 +69,11 @@ MIDDLEWARE = [
 ]
 
 
-# CORS and CSRF Security
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000', 
-    'http://192.168.1.70:8000',  # Allow backend host
-    'http://192.168.1.72:8000',
-    #'http://yourflutterfrontend.com'  # Change this to your Flutter frontend
-]
-# CORS and CSRF Security
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000', 
-    'http://192.168.1.9:8000',
-    'http://192.168.1.7:8000',
-    'http://192.168.1.72:8000',
-    'http://172.16.11.199:8000',
-    'http://172.16.11.29:8000',
-    'http://192.168.1.70:8000'
+# Get allowed IPs for CORS and CSRF
+IP_ADDRESSES = config_data["IP_ADDRESSES"]
+CSRF_TRUSTED_ORIGINS = [f"http://{ip}:8000" for ip in IP_ADDRESSES]
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 
-]
 CORS_ALLOW_CREDENTIALS = True  # Secure session handling
 
 #CSRF_COOKIE_SECURE = True  # Prevent CSRF attacks
@@ -119,10 +106,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
 
-        'NAME': config.get('DB_NAME'),
-        'HOST': config.get('DB_HOST'),
-        'USER': config.get('DB_USER'),
-        'PASSWORD': config.get('DB_PASSWORD'),
+        'NAME': config_data.get('DB_NAME'),
+        'HOST': config_data.get('DB_HOST'),
+        'USER': config_data.get('DB_USER'),
+        'PASSWORD': config_data.get('DB_PASSWORD'),
     }
 }
 
