@@ -12,7 +12,6 @@ class CorrectAnswer extends StatefulWidget {
 
 class _CorrectAnswerState extends State<CorrectAnswer> {
   Map<String, dynamic>? question;
-  int score = 0;
   bool isAnswered = false;
   String selectedOption = '';
   String currentDifficulty = 'easy';
@@ -23,6 +22,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   late AudioPlayer _audioPlayer;
   String audioUrl = '';
   String audioImage = '';
+  String latest_score = '0';
 
   @override
   void initState() {
@@ -38,17 +38,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     prefs.setString('difficulty', currentDifficulty);
   }
 
-  Future<void> _loadScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      score = prefs.getInt('quiz_score') ?? 0;  // Load saved score
-    });
-  }
 
-  Future<void> _saveScore() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('quiz_score', score);  // Save the updated score
-  }
 
   Future<void> fetchQuestion() async {
     if (levelCleared) return;
@@ -107,10 +97,10 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     if (isCorrect) {
       setState(() {
-        score += 10;
+  
         correctAnswers++;
       });
-      _saveScore();  // Save the updated score
+     
     }
 
     try {
@@ -148,6 +138,34 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString("access_token");
   }
+  Future<Map<String, String>> fetchProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString("access_token");
+
+    if (accessToken == null) {
+      return {"error": "No access token found"};
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.1.2:8000/profile/'),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        return {
+          "username": data['username'] ?? 'Unknown User',
+          "email": data['email'] ?? 'No email available',
+          "latest_score": data['latest_score']?.toString() ?? '0',
+        };
+      } else {
+        return {"error": "Failed to load profile"};
+      }
+    } catch (e) {
+      return {"error": "Network error: ${e.toString()}"};
+    }
+  }
 
   void nextQuestion() {
     setState(() {
@@ -161,6 +179,12 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   void _showLevelClearedMessage() async {
     setState(() {
       levelCleared = true;
+    });
+
+ // Fetch profile to get the latest score
+    Map<String, String> profileData = await fetchProfile();
+    setState(() {
+      latest_score = profileData['latest_score'] ?? '0'; // Set the latest score from the profile data
     });
 
     showDialog(
@@ -206,7 +230,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Text(
-                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $score\nProceed to the next level.",
+                  "You have cleared a level.\nYour difficulty will now be increased.\nYour total score till now is: $latest_score\nProceed to the next level.",
                   style: TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
