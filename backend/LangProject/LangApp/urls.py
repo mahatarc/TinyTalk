@@ -10,4 +10,8 @@ urlpatterns = [
     path('verify_email/<uidb64>/<token>/', VerifyEmailAPIView.as_view(), name='verify_email'), 
     path('api/password_reset/', ForgotPasswordView.as_view(), name='password_reset'),
     path('reset_password/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),  
+
+
+
 ]
+
