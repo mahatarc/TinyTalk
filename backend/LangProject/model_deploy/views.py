@@ -4,6 +4,7 @@ import tempfile
 import numpy as np
 from pydub import AudioSegment
 import tempfile
+import os
 
 from transformers import Wav2Vec2Processor, Wav2Vec2ForSequenceClassification
 
@@ -11,6 +12,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 # Load fine-tuned model (Ensure correct path)
+
+# MODEL_PATH = os.path.expanduser("~/Documents/Tiny Talk/TinyTalk/fine_tuned_model/fine_tuned_model")
+
+ # Update this path if needed
 MODEL_PATH = "D:/Major_Project/TinyTalkProject/fine_tuned_model"  # Update this path if needed
 processor = Wav2Vec2Processor.from_pretrained(MODEL_PATH)
 model = Wav2Vec2ForSequenceClassification.from_pretrained(MODEL_PATH)

@@ -17,7 +17,7 @@ class QuizScreen extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'images/bg11.jpg', 
+              'images/bg_quiz.png', 
               fit: BoxFit.cover,
             ),
           ),

@@ -81,7 +81,7 @@ class Home extends StatelessWidget {
                   children: <Widget>[
                     CategoryListTile(
                       title: 'Course',
-                      icon: 'images/course.png',
+                      icon: 'images/course1.png',
                       onTap: () {
                         Navigator.push(
                           context,
