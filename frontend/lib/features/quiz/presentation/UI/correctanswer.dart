@@ -216,11 +216,14 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
     // Show dialog
     showDialog(
       context: context,
+       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
+          
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+          
           contentPadding: EdgeInsets.zero,
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -403,7 +406,7 @@ class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
   // Variables to hold the state of the quiz, such as the current question, difficulty, etc.
   var question;
   String latest_score = '0';
-  String currentDifficulty = 'easy'; // Example: replace with actual data
+  String currentDifficulty = 'easy';
 
   @override
   Widget build(BuildContext context) {
@@ -419,7 +422,7 @@ class _QuizCompletionScreenState extends State<QuizCompletionScreen> {
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('images/bgggg.jpg'), // Replace with your background image
+            image: AssetImage('images/bgggg.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -566,13 +569,13 @@ return AlertDialog(
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(false); // User cancels
+              Navigator.of(context).pop(false);
             },
             child: Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(true); // User confirms
+              Navigator.of(context).pop(true); 
             },
             child: Text("Continue"),
           ),
@@ -605,7 +608,7 @@ return AlertDialog(
 
         setState(() {
           question = null;
-          latest_score = data['latest_score'].toString(); // Convert to String
+          latest_score = data['latest_score'].toString();
           currentDifficulty = data['last_difficulty'];
           List<dynamic> questions = data['questions'];
           if (questions.isNotEmpty) {
@@ -626,7 +629,7 @@ return AlertDialog(
     } catch (e) {
       print("Error restarting quiz: $e");
 
-      // Show an error message if something goes wrong
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Failed to restart quiz. Please try again."),
@@ -635,7 +638,7 @@ return AlertDialog(
       );
     }
   } else {
-    // If user cancels, no further action
+   
     print("Quiz restart canceled.");
   }
 }
