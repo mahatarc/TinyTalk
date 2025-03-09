@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tiny_talks/config.dart';
 import 'package:tiny_talks/features/loginPage/presentation/UI/login.dart';
-import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -21,7 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.5:8000/profile/'),
+        Uri.parse('${AppConfig.baseUrl}/profile/'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
         return {"error": "Failed to load profile"};
       }
     } catch (e) {
-      return {"error": "Network error: ${e.toString()}"};
+      return {"error": "Network error: ${e.toString()}"}; 
     }
   }
 
@@ -89,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 const CircleAvatar(
                   radius: 60,
                   backgroundImage: AssetImage('images/profile.png'),
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color.fromARGB(255, 12, 129, 16),
                 ),
                 const SizedBox(height: 20),
                 buildInfoContainer(username),
@@ -139,7 +139,12 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Center(
         child: Text(
           text,
-          style: const TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'Quicksand'),
+          style: const TextStyle(
+            fontSize: 18, // Increased font size
+            color: Color.fromARGB(255, 255, 255, 255), // White text color
+            fontFamily: 'Roboto', // Custom font family (can replace with any font you prefer)
+            fontWeight: FontWeight.w400, // Bold font weight for emphasis
+          ),
           textAlign: TextAlign.center,
         ),
       ),

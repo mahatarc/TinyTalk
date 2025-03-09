@@ -18,11 +18,11 @@ class _SworbarnaState extends State<Sworbarna> {
   final String _filePath = 'recording.aac';
 
   final List<String> _sworbarna = [
-    'अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ए', 'ऐ', 'ओ', 'औ', 'अं', 'अः'
+    'अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ', 'अं', 'अः'
   ];
   final List<String> _backgroundImages = [
     'images/swo1.png', 'images/swo2.png', 'images/swo3.png', 'images/swo4.png',
-    'images/swo5.png', 'images/swo6.png', 'images/swo7.png', 'images/swo8.png',
+    'images/swo5.png', 'images/swo6.png', 'images/swo8.png',
     'images/swo9.png', 'images/swo10.png', 'images/swo11.png', 'images/swo12.png',
     'images/swo13.png'
   ]; 

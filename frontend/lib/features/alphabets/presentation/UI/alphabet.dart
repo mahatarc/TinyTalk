@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:tiny_talks/config.dart';
 
 class AlphabetPage extends StatefulWidget {
   final int startLetterIndex;
@@ -115,7 +116,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
   }
 
   Future<void> _evaluateSpeech_asr(File audioFile) async {
-    const String apiUrl = "http://192.168.1.9:8000/api/deploy/evaluate_speech_asr/";
+    const String apiUrl = "${AppConfig.baseUrl}/api/deploy/evaluate_speech_asr/";
 
     try {
       var request = http.MultipartRequest("POST", Uri.parse(apiUrl))
