@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import the package to lock orientation
 import 'package:tiny_talks/features/courses/presentation/UI/courses.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/homepage.dart';
 import 'package:tiny_talks/features/profile/presentation/UI/profile.dart';
 import 'package:tiny_talks/features/quiz/presentation/UI/quiz.dart';
 import 'package:tiny_talks/features/rhymes/presentation/UI/rhymes.dart';
@@ -24,7 +25,10 @@ class Home extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white), // White for visibility
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
           },
         ),
       ),
@@ -46,42 +50,51 @@ class Home extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    GestureDetector(
+                    InkWell(
+                      borderRadius: BorderRadius.circular(65), // Circular border for InkWell
                       onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ProfilePage()),
-                          );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ProfilePage()),
+                        );
                       },
-                      child: Image.asset(
-                        'images/profile.png', // Replace with your profile image path
-                        width: 90,
-                        height: 90, 
+                      onHover: (isHovered) {
+                        // Optional hover effect (if needed for web)
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 75,  // Size of the image
+                        height: 75, // Size of the image
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle, // Makes it circular
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color.fromARGB(183, 29, 54, 13).withOpacity(0.6),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'images/profile.png',
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.cover, // Ensures the image fills the circle properly
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16), 
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     // Add action for chest icon
-                    //     print("Chest icon tapped");
-                    //   },
-                    //   child: Image.asset(
-                    //     'images/chest.png',
-                    //     width: 50,
-                    //     height: 50,
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
-              //const SizedBox(height: 2), 
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(20.0),
                   children: <Widget>[
                     CategoryListTile(
                       title: 'Course',
-                      icon: 'images/course.png',
+                      icon: 'images/course1.png',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -166,7 +179,7 @@ class CategoryListTile extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 19.5,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

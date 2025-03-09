@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:tiny_talks/config.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -29,7 +30,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.1.5:8000/api/password_reset/"),
+        Uri.parse("${AppConfig.baseUrl}/api/password_reset/"),
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",

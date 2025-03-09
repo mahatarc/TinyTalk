@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:tiny_talks/config.dart'; 
 
 class CorrectAnswer extends StatefulWidget {
   @override
@@ -70,7 +71,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.2:8000/api/adaptive_quiz/?difficulty=$currentDifficulty'),
+        Uri.parse('${AppConfig.baseUrl}/api/adaptive_quiz/?difficulty=$currentDifficulty'),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -122,7 +123,7 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.2:8000//api/answer/'),
+        Uri.parse('${AppConfig.baseUrl}/api/answer/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${await _getAccessToken()}',
