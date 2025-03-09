@@ -133,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Welcome Back',
+                      'Welcome',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.lobster(
                         textStyle: const TextStyle(

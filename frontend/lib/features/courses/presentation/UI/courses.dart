@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_talks/features/alphabets/presentation/UI/Sworbarna.dart';
-import 'package:tiny_talks/features/alphabets/presentation/UI/stage.dart';
+import 'package:tiny_talks/features/alphabets/presentation/UI/alphabet.dart';
+import 'package:tiny_talks/features/homepage/presentation/UI/home.dart';
+//import 'package:tiny_talks/features/alphabets/presentation/UI/stage.dart';
 import 'package:tiny_talks/features/numbers/presentation/UI/numbers.dart';
 
 class Course extends StatelessWidget {
@@ -17,7 +19,10 @@ class Course extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white), // White for visibility
           onPressed: () {
-            Navigator.of(context).pop();
+           Navigator.pushReplacement(
+              context,
+               MaterialPageRoute(builder: (context) => const Home()),
+           );
           },
         ),
       ),
@@ -39,12 +44,12 @@ class Course extends StatelessWidget {
                   padding: const EdgeInsets.all(20.0),
                   children: <Widget>[
                     CategoryListTile(
-                      title: 'स्वर वर्ण',
-                      icon: 'images/swor.png',
+                      title: 'अंक',
+                      icon: 'images/numbers.png',
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Sworbarna()),
+                          MaterialPageRoute(builder: (context) => Numbers())
                         );
                       },
                       backgroundImage: 'images/h1.png',
@@ -55,18 +60,25 @@ class Course extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>  StagesScreen()),
+                          MaterialPageRoute(builder: (context) => AlphabetPage(
+                           startLetterIndex: 0, // Or set the starting index as needed
+                           onFinish: () {
+                          // Define what should happen when finished
+                           print('Finished the alphabet lesson');
+                            // You can navigate to another page or show a dialog
+                           }, 
+                          )),
                         );
                       },
                       backgroundImage: 'images/h1.png',
                     ),
                     CategoryListTile(
-                      title: 'अंक',
-                      icon: 'images/numbers.png',
+                      title: 'स्वर वर्ण',
+                      icon: 'images/swor.png',
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>  Numbers()),
+                          MaterialPageRoute(builder: (context) =>  const Sworbarna()),
                         );
                       },
                       backgroundImage: 'images/h1.png',
@@ -126,7 +138,7 @@ class CategoryListTile extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.white, // White color for contrast
                 ),
