@@ -25,6 +25,11 @@ class _CorrectAnswerState extends State<CorrectAnswer> {
   String audioUrl = '';
   String audioImage = '';
 
+  // Track rewards for each difficulty
+  int easyReward = 0;
+  int mediumReward = 0;
+  int hardReward = 0;
+
   @override
   void initState() {
     super.initState();

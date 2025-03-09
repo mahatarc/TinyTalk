@@ -28,7 +28,6 @@ from django.utils.decorators import method_decorator
 from .models import Question, UserProgress  
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-
 def home(request):
     return HttpResponse("Welcome to TinyTalks")
 
@@ -36,13 +35,9 @@ def home(request):
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     user = request.user
-    user_progress, _ = UserProgress.objects.get_or_create(user=user)
-
     return Response({
         'username': user.username,
         'email': user.email,
-        'latest_score': user_progress.latest_score,  
-
     })
 
 
@@ -53,14 +48,6 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def update_user_score(request):
-    user_progress, _ = UserProgress.objects.get_or_create(user=request.user)
-    user_progress.score = request.data.get('score', user_progress.latest_score)
-    user_progress.save()
-    return Response({'message': 'Score updated successfully'})
 
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
@@ -316,6 +303,7 @@ class PasswordResetConfirmView(View):
 
         return JsonResponse({"message": "Password has been reset successfully."}, status=200)
 
+
 class AdaptiveQuizAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -323,20 +311,14 @@ class AdaptiveQuizAPIView(APIView):
         user = request.user
         user_progress, _ = UserProgress.objects.get_or_create(user=user)
 
-        # Get difficulty from request (fallback to last_difficulty)
-        requested_difficulty = request.query_params.get('difficulty', user_progress.last_difficulty)
+        last_difficulty = user_progress.last_difficulty
 
-        # Update user's last_difficulty if requested explicitly
-        if requested_difficulty != user_progress.last_difficulty:
-            user_progress.last_difficulty = requested_difficulty
-            user_progress.save()
+        questions = Question.objects.filter(difficulty=last_difficulty)
 
-        # Fetch questions based on requested difficulty
-        questions = Question.objects.filter(difficulty=requested_difficulty)
-        correctly_answered_questions = user_progress.correct_questions.filter(difficulty=requested_difficulty)
+        correctly_answered_questions = user_progress.correct_questions.filter(difficulty=last_difficulty)
 
         if correctly_answered_questions.count() == questions.count() and questions.count() > 0:
-            next_difficulty = self.get_next_difficulty(requested_difficulty)
+            next_difficulty = self.get_next_difficulty(last_difficulty)
             user_progress.last_difficulty = next_difficulty
             user_progress.save()
             return Response({
@@ -352,6 +334,7 @@ class AdaptiveQuizAPIView(APIView):
         # Pick a random unanswered question
         question = unanswered_questions.order_by('?').first()
 
+        # Ensure to include image and audio (if present) in the serialized response
         serializer = QuestionSerializer(question)
         return Response(serializer.data)
 
@@ -420,39 +403,4 @@ class UserProgressAPIView(APIView):
             "incorrect_answers": user_progress.incorrect_answers,
             "total_answers": user_progress.total_answers,
             "last_difficulty": user_progress.last_difficulty
-        })
-    
-class RestartQuizAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def post(self, request):
-        user = request.user
-        user_progress, _ = UserProgress.objects.get_or_create(user=user)
-
-        # Reset user progress
-        user_progress.last_difficulty = 'easy'  # Difficulty reset to 'easy'
-        user_progress.correct_answers = 0
-        user_progress.incorrect_answers = 0
-        user_progress.total_answers = 0
-        user_progress.latest_score = 0
-        user_progress.correct_questions.clear()  # Remove all correct questions
-        user_progress.incorrect_questions.clear()  # Remove all incorrect questions
-        user_progress.save()
-
-        # Fetch questions based on 'easy' difficulty (similar to AdaptiveQuizAPIView)
-        easy_questions = Question.objects.filter(difficulty='easy')
-        
-        # If needed, you can return a random subset of questions
-        # If you want to return the first few questions, you can adjust accordingly.
-        # Example: getting the first 5 easy questions
-        easy_questions = easy_questions[:5]  
-
-        # Serialize the questions to return
-        question_data = [{"question_id": q.id, "question_text": q.question_text, "options": q.options} for q in easy_questions]
-
-        return Response({
-            "message": "Quiz restarted successfully! Difficulty set to 'easy'.",
-            "last_difficulty": user_progress.last_difficulty,
-            "latest_score": user_progress.latest_score,
-            "questions": question_data  # Return easy-level questions
         })
