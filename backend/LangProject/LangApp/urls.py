@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import   SignupAPIView, UserProgressAPIView, AnswerQuizAPIView,LoginAPIView,ProtectedAPIView,VerifyEmailAPIView, AdaptiveQuizAPIView,ForgotPasswordView, PasswordResetConfirmView
 
+
 urlpatterns = [
     path('protected/', ProtectedAPIView.as_view(), name='protected_api'),
     path('signup/', SignupAPIView.as_view(), name='signup'),
@@ -11,6 +12,5 @@ urlpatterns = [
     path('api/password_reset/', ForgotPasswordView.as_view(), name='password_reset'),
     path('reset_password/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),  
 
-
-
 ]
+
