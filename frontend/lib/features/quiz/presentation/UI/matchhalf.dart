@@ -81,20 +81,26 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Match Nepali Letters'),
-        backgroundColor: const Color.fromARGB(255, 118, 181, 111),
+        backgroundColor: Colors.transparent
       ),
+        extendBodyBehindAppBar: true,
+
       body: Stack(
+        
         children: [
           Positioned.fill(
             child: Image.asset(
-              'images/bg.jpg',
+              'images/backg.jpg',
               fit: BoxFit.cover,
             ),
           ),
+        
           Center(
             child: Column(
+          
               children: [
+SizedBox(height: 80),
+
                 Container(
                   margin: const EdgeInsets.only(top: 20, bottom: 20),
                   padding: const EdgeInsets.all(10),
@@ -147,7 +153,7 @@ class _MatchHalfGameState extends State<MatchHalfGame> {
                                       child: Text(
                                         pair['half1']!,
                                         style: TextStyle(
-                                          fontSize: 40,
+                                          fontSize: 30,
                                           color: Colors.blue,
                                         ),
                                       ),

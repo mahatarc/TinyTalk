@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_talks/config.dart';
@@ -92,9 +93,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundColor: Color.fromARGB(255, 12, 129, 16),
                 ),
                 const SizedBox(height: 20),
-                buildInfoContainer(username),
-                buildInfoContainer(email),
-                buildInfoContainer(score),
+                buildInfoContainer(Icons.person, "Username", username),
+                buildInfoContainer(Icons.email, "Email", email),
+                buildInfoContainer(Icons.star, "Score", score),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
@@ -108,7 +109,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   child: const Text(
                     'Logout',
@@ -123,30 +127,59 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget buildInfoContainer(String text) {
+  Widget buildInfoContainer(IconData icon, String label, String text) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      width: double.infinity,
-      height: 70,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      width: double.infinity, 
+      height: 90,
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('images/h1.png'),
           fit: BoxFit.cover,
         ),
         borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 5,
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 18, // Increased font size
-            color: Color.fromARGB(255, 255, 255, 255), // White text color
-            fontFamily: 'Roboto', // Custom font family (can replace with any font you prefer)
-            fontWeight: FontWeight.w400, // Bold font weight for emphasis
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center, 
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center, 
+            children: [
+              Icon(
+                icon, 
+                color: const Color.fromARGB(255, 109, 67, 4),  // Changed the icon color to blue
+                size: 30,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                "$label:",
+                style: GoogleFonts.permanentMarker( 
+                  fontSize: 19,
+                  fontWeight: FontWeight.normal,
+                  color: const Color.fromARGB(255, 109, 67, 4),
+                ),
+              ),
+            ],
           ),
-          textAlign: TextAlign.center,
-        ),
+          const SizedBox(height: 4),
+          Text(
+            text,
+            style: GoogleFonts.oleoScript( 
+              fontSize: 20,
+              color: Colors.white,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

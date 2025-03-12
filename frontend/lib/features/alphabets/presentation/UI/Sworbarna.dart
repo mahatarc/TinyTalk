@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:tiny_talks/config.dart';
 
 class Sworbarna extends StatefulWidget {
+  
   const Sworbarna({super.key});
 
   @override
@@ -15,7 +21,8 @@ class _SworbarnaState extends State<Sworbarna> {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterSoundPlayer _player = FlutterSoundPlayer();
   bool _isRecording = false;
-  final String _filePath = 'recording.aac';
+  String? _recordedFilePath;
+  int _currentSworbarnaIndex = 0;
 
   final List<String> _sworbarna = [
     'अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ', 'अं', 'अः'
@@ -27,7 +34,7 @@ class _SworbarnaState extends State<Sworbarna> {
     'images/swo13.png'
   ]; 
   
-  int _currentSworbarnaIndex = 0;
+
 
   @override
   void initState() {
@@ -48,8 +55,8 @@ class _SworbarnaState extends State<Sworbarna> {
   }
 
   void _playSound() async {
-    try {
-      await _audioPlayer.play(DeviceFileSource('audio/${_sworbarna[_currentSworbarnaIndex]}.mp3'));
+   try {
+      await _audioPlayer.play(AssetSource('audio/${_sworbarna[_currentSworbarnaIndex]}.wav'));
       print('Audio played successfully');
     } catch (e) {
       print('Error playing sound: $e');
@@ -65,26 +72,49 @@ class _SworbarnaState extends State<Sworbarna> {
   }
 
   Future<void> _startRecording() async {
-    if (await Permission.microphone.isGranted) {
-      setState(() {
-        _isRecording = true;
-      });
-      await _recorder.startRecorder(
-        toFile: _filePath,
-        codec: Codec.aacADTS,
-      );
-    } else {
+    if (!await Permission.microphone.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Microphone permission is required')),
       );
+      return;
     }
+
+    Directory appDir = await getApplicationDocumentsDirectory();
+    String filePath = '${appDir.path}/recording.aac';
+
+    print("Recording will be saved to: $filePath");
+
+    setState(() {
+      _isRecording = true;
+      _recordedFilePath = filePath;
+    });
+
+    await _recorder.startRecorder(
+      toFile: filePath,
+      codec: Codec.aacADTS,
+    );
   }
 
-  Future<void> _stopRecording() async {
-    await _recorder.stopRecorder();
+   Future<void> _stopRecording() async {
+    String? filePath = await _recorder.stopRecorder();
+    print("Recording saved to: $filePath");
+
     setState(() {
       _isRecording = false;
+      _recordedFilePath = filePath;
     });
+
+    if (filePath != null) {
+      File audioFile = File(filePath);
+      if (await audioFile.exists()) {
+        print("File exists at: ${audioFile.path}");
+        await _evaluateSpeech(audioFile);
+      } else {
+        print("File does not exist at: ${audioFile.path}");
+      }
+    } else {
+      print("No file path returned from stopRecorder");
+    }
   }
 
   void _nextSworbarna() {
@@ -96,7 +126,61 @@ class _SworbarnaState extends State<Sworbarna> {
       }
     });
   }
+Future<void> _evaluateSpeech(File audioFile) async {
+    const String apiUrl = "${AppConfig.baseUrl}/api/deploy/evaluate_speech/";
 
+    try {
+      var request = http.MultipartRequest("POST", Uri.parse(apiUrl))
+        ..fields['label'] = _sworbarna[_currentSworbarnaIndex] 
+        ..files.add(await http.MultipartFile.fromPath("file", audioFile.path));
+
+      print("Request Details: ");
+      print("label: ${_sworbarna[_currentSworbarnaIndex]}");
+      print("File: ${audioFile.path}");
+
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+
+      print("Response: $responseData");
+
+      if (response.statusCode == 200) {
+        var result = jsonDecode(responseData);
+        double accuracy = (result['accuracy'] is int)
+            ? (result['accuracy'] as int).toDouble()
+            : result['accuracy'];
+        _showResultDialog(accuracy);
+      } else {
+        print("Error: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print("API Request Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('API Request Error: $e')),
+      );
+    }
+  }
+void _showResultDialog(double accuracy) {
+    String message = accuracy >= 0.8
+        ? "Correct pronunciation"
+        : "Incorrect pronunciation, try again";
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Evaluation Result"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   void dispose() {
     _recorder.closeRecorder();
@@ -106,6 +190,7 @@ class _SworbarnaState extends State<Sworbarna> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(

@@ -1,3 +1,2 @@
-fine_tuned_model/
-ASR_model/
+fine_tuned_ASR_model/
 *config.dart
