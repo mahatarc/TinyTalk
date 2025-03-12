@@ -67,7 +67,7 @@ questions = [
     # hard
     {
         "image": "images/woodspeaker.png",
-        "audio": "audio/0.wav",
+        "audio": "audio/Zero.wav",
         "question_text": "Identify the sound:",
         "options": ["०", '४', '८', '२'],
         "answer": '०',
@@ -76,7 +76,7 @@ questions = [
 
     {
         "image": "images/woodspeaker.png",
-        "audio": "audio/1.wav",
+        "audio": "audio/One.wav",
         "question_text": 'Identify the sound:',
         "options": ['३', '१', '८', '६'],
         "answer": '१',
@@ -85,7 +85,7 @@ questions = [
 
     {
         "image": "images/woodspeaker.png",
-        "audio": "audio/2.wav",
+        "audio": "audio/Two.wav",
         "question_text": 'Identify the sound:',
         "options": ['९', '२', '८', '६'],
         "answer": '२',
@@ -94,7 +94,7 @@ questions = [
 
     {
         "image": "images/woodspeaker.png",
-        "audio": "audio/3.wav",
+        "audio": "audio/Three.wav",
         "question_text": 'Identify the sound:',
         "options": ['३', '१', '८', '६'],
         "answer": '३',
@@ -103,7 +103,7 @@ questions = [
 
     {
         "image": "images/woodspeaker.png",
-        "audio": "audio/4.wav",
+        "audio": "audio/Four.wav",
         "question_text": 'Identify the sound:',
         "options": ['९', '१', '४', '६'],
         "answer": '४',
