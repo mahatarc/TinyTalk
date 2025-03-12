@@ -9,15 +9,21 @@ class QuizScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white), // White back arrow
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              'images/bg_quiz.png', 
+              'images/bg_quiz.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -28,36 +34,8 @@ class QuizScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center, // Centering the content vertically
                 children: [
-                  CategoryListTile(
-                    title: 'Match the Letters',
-                    icon: 'images/cube.png',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MatchHalfGame(),
-                        ),
-                      );
-                    },
-                    backgroundImage: 'images/h1.png', 
-                  ),
-                  const SizedBox(height: 2), 
-                  CategoryListTile(
-                    title: 'Match the Following',
-                    icon: 'images/match.png', 
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MatchFollowingGame(),
-                        ),
-                      );
-                    },
-                    backgroundImage: 'images/h1.png',
-                  ),
-                  const SizedBox(height: 2), 
-                  CategoryListTile(
-                    title: 'Identify from Picture',
+                   CategoryListTile(
+                    title: 'Audio Visual Quiz',
                     icon: 'images/puzzle.png',
                     onTap: () {
                       Navigator.push(
@@ -69,7 +47,35 @@ class QuizScreen extends StatelessWidget {
                     },
                     backgroundImage: 'images/h1.png',
                   ),
-                  const SizedBox(height: 2), 
+                  const SizedBox(height: 2),
+                  CategoryListTile(
+                    title: 'Match the Letters',
+                    icon: 'images/cube.png',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MatchHalfGame(),
+                        ),
+                      );
+                    },
+                    backgroundImage: 'images/h1.png',
+                  ),
+                  const SizedBox(height: 2),
+                  CategoryListTile(
+                    title: 'Match the Following',
+                    icon: 'images/match.png',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MatchFollowingGame(),
+                        ),
+                      );
+                    },
+                    backgroundImage: 'images/h1.png',
+                  ),
+                  const SizedBox(height: 2),
                 ],
               ),
             ),
@@ -120,11 +126,11 @@ class CategoryListTile extends StatelessWidget {
                 width: 70, // Increased icon size
                 height: 70, // Increased icon size
               ),
-             const SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 22, // Increased text size
+                  fontSize: 20.5, // Adjusted title size
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 229, 235, 200), // White color for contrast
                 ),

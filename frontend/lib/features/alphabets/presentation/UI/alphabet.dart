@@ -22,11 +22,6 @@ class _AlphabetPageState extends State<AlphabetPage> {
   final List<String> _alphabets = ['क', 'ख', 'ग', 'घ', 'ङ'];
   final List<String> _backgroundImages = [
     'images/alp1.png', 'images/alp2.png', 'images/alp3.png', 'images/alp4.png', 'images/alp5.png',
-    // 'images/alp6.png', 'images/alp7.png', 'images/alp8.png', 'images/alp9.png', 'images/alp10.png',
-    // 'images/alp11.png', 'images/alp12.png', 'images/alp13.png', 'images/alp14.png', 'images/alp15.png',
-    // 'images/alp16.png', 'images/alp17.png', 'images/alp18.png', 'images/alp19.png', 'images/alp20.png',
-    // 'images/alp21.png', 'images/alp22.png', 'images/alp23.png', 'images/alp24.png', 'images/alp25.png',
-    // 'images/alp26.png', 'images/alp27.png', 'images/alp28.png', 'images/alp29.png', 'images/alp30.png',
   ];
 
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -106,7 +101,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
       File audioFile = File(filePath);
       if (await audioFile.exists()) {
         print("File exists at: ${audioFile.path}");
-        await _evaluateSpeech_asr(audioFile);
+        await _evaluateSpeech(audioFile);
       } else {
         print("File does not exist at: ${audioFile.path}");
       }
@@ -115,16 +110,16 @@ class _AlphabetPageState extends State<AlphabetPage> {
     }
   }
 
-  Future<void> _evaluateSpeech_asr(File audioFile) async {
-    const String apiUrl = "${AppConfig.baseUrl}/api/deploy/evaluate_speech_asr/";
+  Future<void> _evaluateSpeech(File audioFile) async {
+    const String apiUrl = "${AppConfig.baseUrl}/api/deploy/evaluate_speech/";
 
     try {
       var request = http.MultipartRequest("POST", Uri.parse(apiUrl))
-        ..fields['letter'] = _alphabets[widget.startLetterIndex] 
+        ..fields['label'] = _alphabets[widget.startLetterIndex] 
         ..files.add(await http.MultipartFile.fromPath("file", audioFile.path));
 
       print("Request Details: ");
-      print("Letter: ${_alphabets[widget.startLetterIndex]}");
+      print("label: ${_alphabets[widget.startLetterIndex]}");
       print("File: ${audioFile.path}");
 
       var response = await request.send();

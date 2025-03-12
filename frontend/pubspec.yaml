@@ -89,16 +89,16 @@ flutter:
     - images/background1.jpg
     - images/
     - assets/audio/
-    - assets/audio/0.wav
-    - assets/audio/1.wav
-    - assets/audio/2.wav
-    - assets/audio/3.wav
-    - assets/audio/4.wav
-    - assets/audio/5.wav
-    - assets/audio/6.wav
-    - assets/audio/7.wav
-    - assets/audio/8.wav
-    - assets/audio/9.wav
+    - assets/audio/Zero.wav
+    - assets/audio/One.wav
+    - assets/audio/Two.wav
+    - assets/audio/Three.wav
+    - assets/audio/Four.wav
+    - assets/audio/Five.wav
+    - assets/audio/Six.wav
+    - assets/audio/Seven.wav
+    - assets/audio/Eight.wav
+    - assets/audio/Nine.wav
     - assets/audio/क.wav
     - assets/audio/ख.wav
     - assets/audio/ग.wav

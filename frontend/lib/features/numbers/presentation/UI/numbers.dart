@@ -17,7 +17,7 @@ class Numbers extends StatefulWidget {
 }
 
 class _NumbersState extends State<Numbers> {
-  final List<String> _numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  final List<String> _numbers = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine'];
   final List<String> _backgroundImages = [
     'images/0.png', 'images/1.png', 'images/2.png', 'images/3.png',
     'images/4.png', 'images/5.png', 'images/6.png', 'images/7.png',
@@ -47,13 +47,20 @@ class _NumbersState extends State<Numbers> {
     }
   }
 
-  // Updated _playSound method with the correct path
-  void _playAudio() async {
-  // Ensure you're using the correct method to load the audio file
-  await _audioPlayer.setSource(AssetSource('audio/${_numbers[_currentNumberIndex]}.wav'));
-  await _audioPlayer.resume(); // Play the audio
+void _playSound() async {
+  String assetPath = 'audio/${_numbers[_currentNumberIndex]}.wav';
+  print("Trying to play: $assetPath");
+  
+  try {
+    await _audioPlayer.setSource(AssetSource(assetPath));
+    await _audioPlayer.resume();
+    print('Audio played successfully');
+  } catch (e) {
+    print('Error playing sound: $e');
+  }
 }
 
+  
   void _toggleRecording() async {
     if (_isRecording) {
       await _stopRecording();
@@ -117,18 +124,27 @@ Future<void> _stopRecording() async {
   }
 }
 
+void _nextNumber() {
+    setState(() {
+      if (_currentNumberIndex < _numbers.length - 1) {
+        _currentNumberIndex++;
+      } else {
+        _currentNumberIndex = 0; // Reset to the first Sworbarna if it reaches the end
+      }
+    });
+  }
 
 Future<void> _evaluateSpeech(File audioFile) async {
  const String apiUrl = "${AppConfig.baseUrl}/api/deploy/evaluate_speech/";
   try {
     // Prepare the multipart request
     var request = http.MultipartRequest("POST", Uri.parse(apiUrl))
-      ..fields['number'] = _numbers[_currentNumberIndex]
+      ..fields['label'] = _numbers[_currentNumberIndex]
       ..files.add(await http.MultipartFile.fromPath("file", audioFile.path));
 
     // Debug: Print request details
     print("Request Details: ");
-    print("Number: ${_numbers[_currentNumberIndex]}");
+    print("label: ${_numbers[_currentNumberIndex]}");
     print("File: ${audioFile.path}");
 
     var response = await request.send();
@@ -180,11 +196,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
 }
 
 
-  void _nextNumber() {
-    setState(() {
-      _currentNumberIndex = (_currentNumberIndex + 1) % _numbers.length;
-    });
-  }
+  
 
   @override
   void dispose() {
@@ -220,7 +232,7 @@ Future<void> _evaluateSpeech(File audioFile) async {
               left: 30.0,
               child: IconButton(
                 icon: const Icon(Icons.volume_up, size: 40.0),
-                onPressed: _playAudio, // Calls _playSound() when pressed
+                onPressed: _playSound, 
 
               ),
             ),

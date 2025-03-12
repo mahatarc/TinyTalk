@@ -39,7 +39,7 @@ PASSWORD_RESET_EMAIL_TEMPLATE = 'password_reset_confirm.html'
 # Security and Debugging
 SECRET_KEY = config_data.get("SECRET_KEY", "fallback-secret-key")
 DEBUG = config_data.get("DEBUG", True)
-ALLOWED_HOSTS = config_data.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
+ALLOWED_HOSTS = config_data.get("ALLOWED_HOSTS")
 
 # Installed Applications
 INSTALLED_APPS = [
@@ -70,7 +70,7 @@ MIDDLEWARE = [
 
 
 # Get allowed IPs for CORS and CSRF
-IP_ADDRESSES = config_data["IP_ADDRESSES"]
+IP_ADDRESSES = config_data["ALLOWED_HOSTS"]
 CSRF_TRUSTED_ORIGINS = [f"http://{ip}:8000" for ip in IP_ADDRESSES]
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 
